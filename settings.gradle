@@ -9,8 +9,5 @@
 
 rootProject.name = 'sugarbag'
 
-include 'app'
+include 'application'
 include 'plugin'
-
-project('app').name = 'sugarbag-app'
-project('plugin').name = 'sugarbag-plugin'
