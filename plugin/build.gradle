@@ -8,5 +8,9 @@ repositories {
 
 dependencies {
     implementation 'com.google.guava:guava:27.0.1-jre'
+    
+    // https://mvnrepository.com/artifact/com.sun/tools
+    implementation files('lib/edu/handong/csee/se/sugarbag/tools-1.5.0.jar')
+
     testImplementation 'junit:junit:4.12'
 }
