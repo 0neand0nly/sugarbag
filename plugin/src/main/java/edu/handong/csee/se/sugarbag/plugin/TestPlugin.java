@@ -83,4 +83,12 @@ public class TestPlugin implements Plugin {
                         createIfBlock(factory, symbolsTable, parameter),
                         null);
     }
+
+    private static JCTree.JCBinary createIfCondition(TreeMaker factory, Names symbolsTable, VariableTree parameter) {
+        Name parameterId = symbolsTable.fromString(parameter.getName().toString());
+
+        return factory.Binary(JCTree.Tag.LE,
+                factory.Ident(parameterId),
+                factory.Literal(TypeTag.INT, 0));
+    }
 }
