@@ -74,6 +74,8 @@ public class TestPlugin implements Plugin {
                 .anyMatch(a -> Positive.class.getSimpleName().equals(a.getAnnotationType().toString()));
     }
 
+    
+
     private static JCTree.JCIf createCheck(VariableTree parameter, Context context) {
         TreeMaker factory = TreeMaker.instance(context);
         Names symbolsTable = Names.instance(context);
@@ -90,5 +92,26 @@ public class TestPlugin implements Plugin {
         return factory.Binary(JCTree.Tag.LE,
                 factory.Ident(parameterId),
                 factory.Literal(TypeTag.INT, 0));
+    }
+
+    private static JCTree.JCBlock createIfBlock (TreeMaker factory, Names symbolsTable, VariableTree parameter) {
+        String parameterName = parameter.getName().toString();
+        Name parameterId = symbolsTable.fromString(parameterName);
+
+        String errorMessagePrefix = String.format(
+                "Argument '%s' of type %s is marked by @%s but got '",
+                parameterName, parameter.getType(), Positive.class.getSimpleName());
+        String errorMessageSuffix = "' for it";
+
+        return factory.Block(0, com.sun.tools.javac.util.List.of(
+                factory.Throw(
+                        factory.NewClass(null, nil(),
+                                factory.Ident(symbolsTable.fromString(
+                                        IllegalArgumentException.class.getSimpleName())),
+                                com.sun.tools.javac.util.List.of(factory.Binary(JCTree.Tag.PLUS,
+                                        factory.Binary(JCTree.Tag.PLUS,
+                                                factory.Literal(TypeTag.CLASS, errorMessagePrefix),
+                                                factory.Ident(parameterId)),
+                                        factory.Literal(TypeTag.CLASS, errorMessageSuffix))), null))));
     }
 }
