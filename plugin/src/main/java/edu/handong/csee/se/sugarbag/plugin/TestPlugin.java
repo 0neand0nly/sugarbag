@@ -35,6 +35,7 @@ public class TestPlugin implements Plugin {
 
     @Override
     public void init(JavacTask task, String... args) {
+        Context context = ((BasicJavacTask) task).getContext();
         task.addTaskListener(new TaskListener() {
 
             @Override
@@ -50,8 +51,16 @@ public class TestPlugin implements Plugin {
                     }
 
                     @Override
-                    public Void visitMethod(MethodTree node, Void aVoid) {
-                        return super.visitMethod(node, aVoid);
+                    public Void visitMethod(MethodTree method, Void v) {
+                        List<VariableTree> parametersToInstrument
+                                = method.getParameters().stream()
+                                .filter(TestPlugin.this::shouldInstrument)
+                                .collect(Collectors.toList());
+                        if(!parametersToInstrument.isEmpty()) {
+                            Collections.reverse(parametersToInstrument);
+                            parametersToInstrument.forEach(p -> addCheck(method, p, context));
+                        }
+                        return super.visitMethod(method, v);
                     }
                 }, null);
             }
@@ -63,5 +72,15 @@ public class TestPlugin implements Plugin {
                 && parameter.getModifiers().getAnnotations()
                 .stream()
                 .anyMatch(a -> Positive.class.getSimpleName().equals(a.getAnnotationType().toString()));
+    }
+
+    private static JCTree.JCIf createCheck(VariableTree parameter, Context context) {
+        TreeMaker factory = TreeMaker.instance(context);
+        Names symbolsTable = Names.instance(context);
+
+        return factory.at(((JCTree) parameter).pos)
+                .If(factory.Parens(createIfCondition(factory, symbolsTable, parameter)),
+                        createIfBlock(factory, symbolsTable, parameter),
+                        null);
     }
 }
