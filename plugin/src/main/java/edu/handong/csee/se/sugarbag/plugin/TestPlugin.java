@@ -1,6 +1,6 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
-import com.google.errorprone.annotations.Var;
+
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;
@@ -13,6 +13,7 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
+
 
 import javax.tools.JavaCompiler;
 import java.util.*;
@@ -74,7 +75,11 @@ public class TestPlugin implements Plugin {
                 .anyMatch(a -> Positive.class.getSimpleName().equals(a.getAnnotationType().toString()));
     }
 
-    
+    private void addCheck(MethodTree method, VariableTree parameter, Context context) {
+        JCTree.JCIf check = createCheck(parameter, context);
+        JCTree.JCBlock body = (JCTree.JCBlock) method.getBody();
+        body.stats = body.stats.prepend(check);
+    }
 
     private static JCTree.JCIf createCheck(VariableTree parameter, Context context) {
         TreeMaker factory = TreeMaker.instance(context);
