@@ -111,12 +111,12 @@ public class CLI {
     public void printAdminInfo() {
 
         System.out.println("> Admin info");
-        System.out.println("* 21800637@handong.ac.kr");
-        System.out.println("* 22100113@handong.ac.kr");
-        System.out.println("* naver@handong.ac.kr");
-        System.out.println("* 21800353@handong.ac.kr");
-        System.out.println("* 21700383@handong.ac.kr");
-        System.out.println("* inwoo405@handong.ac.kr");
+        System.out.println("\t* 21800637@handong.ac.kr");
+        System.out.println("\t* 22100113@handong.ac.kr");
+        System.out.println("\t* naver@handong.ac.kr");
+        System.out.println("\t* 21800353@handong.ac.kr");
+        System.out.println("\t* 21700383@handong.ac.kr");
+        System.out.println("\t* inwoo405@handong.ac.kr");
 
     }
 
