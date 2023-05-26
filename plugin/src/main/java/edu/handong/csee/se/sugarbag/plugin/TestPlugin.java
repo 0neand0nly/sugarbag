@@ -1,5 +1,10 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
+import com.sun.source.util.JavacTask;
+import com.sun.source.util.Plugin;
+import com.sun.source.util.TaskEvent;
+import com.sun.source.util.TaskListener;
+import com.sun.source.util.TaskEvent.Kind;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
@@ -13,6 +18,7 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
+
 
 
 import javax.tools.JavaCompiler;

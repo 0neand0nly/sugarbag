@@ -10,7 +10,11 @@ dependencies {
     implementation 'com.google.guava:guava:27.0.1-jre'
     
     // https://mvnrepository.com/artifact/com.sun/tools
-    implementation files('lib/com/sun/tools/tools-1.5.0.jar')
+//    implementation files('lib/com/sun/tools/tools-1.5.0.jar')
+    // https://mvnrepository.com/artifact/com.sun/tools
+    // https://mvnrepository.com/artifact/com.sun/tools
+    implementation files('lib/com/sun/tools/com.sun.tools-1.8.0_jdk8u275-b01_linux_x64.jar')
+//    system group: 'com.sun', name: 'tools', version: '1.8'
 
     testImplementation 'junit:junit:4.12'
 }
