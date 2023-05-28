@@ -2,7 +2,8 @@ package edu.handong.csee.se.sugarbag.plugin;
 
 import java.lang.annotation.*;
 
-@Retention(RetentionPolicy.SOURCE)
+@Documented
+@Retention(RetentionPolicy.CLASS)
 @Target({ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})
 public @interface Numeric {
     double min() default Double.NEGATIVE_INFINITY;
