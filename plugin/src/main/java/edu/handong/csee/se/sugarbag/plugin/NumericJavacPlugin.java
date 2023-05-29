@@ -1,15 +1,25 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+// import javax.naming.Context;
+import javax.tools.JavaCompiler;
+
+import com.sun.source.tree.AnnotationTree;
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.VariableTree;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.Plugin;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
-import com.sun.source.util.TaskEvent.Kind;
-
-import com.sun.source.tree.ClassTree;
-import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.VariableTree;
-import com.sun.source.util.*;
+import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.api.BasicJavacTask;
 import com.sun.tools.javac.code.TargetType;
 import com.sun.tools.javac.code.TypeTag;
@@ -18,12 +28,6 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
-
-import javax.tools.JavaCompiler;
-import java.util.*;
-import java.util.stream.Collectors;
-import com.sun.source.tree.Tree;
-import com.sun.source.tree.*;
 
 /**
  * A {@link JavaCompiler javac} plugin which inserts {@code >= min && <= max} checks into resulting {@code *.class} files
@@ -83,7 +87,7 @@ public class NumericJavacPlugin implements Plugin {
     }
 
     private boolean shouldInstrument(VariableTree parameter) {
-        return TARGET_TYPES.contains(parameter.getType().toString())
+        return "String".contains(parameter.getType().toString())
           && parameter.getModifiers().getAnnotations()
             .stream()
             .anyMatch(a -> Numeric.class.getSimpleName().equals(a.getAnnotationType().toString()));
@@ -107,44 +111,58 @@ public class NumericJavacPlugin implements Plugin {
 
     private static JCTree.JCExpression createIfCondition(TreeMaker factory, Names symbolsTable, VariableTree parameter) {
         Name parameterId = symbolsTable.fromString(parameter.getName().toString());
-        System.out.println("asd");
         // Extract min and max values from @Numeric annotation
         double min = Double.NEGATIVE_INFINITY;
         double max = Double.POSITIVE_INFINITY;
+        String numericType = null;
+
         for (AnnotationTree annotation : parameter.getModifiers().getAnnotations()) {
             if (annotation.getAnnotationType().toString().equals(Numeric.class.getSimpleName())) {
                 for (Tree arg : annotation.getArguments()) {
                     if (arg.toString().startsWith("min=") || arg.toString().startsWith("min =")) {
-                        String temp = "";
-                        for(int i = 0; i < arg.toString().length(); i++){
-                            if('0' <= arg.toString().charAt(i) && arg.toString().charAt(i) <= '9')
-                                temp += arg.toString().charAt(i);
-                        }
-                        min = Double.parseDouble(temp) - 1;
+                        min = extractDouble(arg.toString());
                     } else if (arg.toString().startsWith("max=") || arg.toString().startsWith("max =")) {
-                        String temp = "";
-                        for(int i = 0; i < arg.toString().length(); i++){
-                            if('0' <= arg.toString().charAt(i) && arg.toString().charAt(i) <= '9')
-                                temp += arg.toString().charAt(i);
-                        }
-                        max = Double.parseDouble(temp) - 1;
+                        max = extractDouble(arg.toString());
+                    } else if (arg.toString().startsWith("numericType=") || arg.toString().startsWith("numericType =")) {
+                        numericType = arg.toString().split("=")[1].trim().replaceAll("\"", "");
                     }
                 }
             }
         }
+
+        // Check if parameter's type does not match numericType
+        // Create type-checking condition based on numericType
+        JCTree.JCUnary typeCheckNot = createTypeCheckCondition(factory, symbolsTable, parameterId, numericType);
+
+        JCTree.JCMethodInvocation parseMethod;
+        if(numericType.equals("int")) {
+            parseMethod = factory.Apply(com.sun.tools.javac.util.List.nil(),
+                    factory.Select(factory.Ident(symbolsTable.fromString("Integer")), symbolsTable.fromString("parseInt")), 
+                    com.sun.tools.javac.util.List.of(factory.Ident(parameterId)));
+        } else {
+            parseMethod = factory.Apply(com.sun.tools.javac.util.List.nil(),
+                    factory.Select(factory.Ident(symbolsTable.fromString("Double")), symbolsTable.fromString("parseDouble")), 
+                    com.sun.tools.javac.util.List.of(factory.Ident(parameterId)));
+        }
         
-        // Create binary condition for checking if parameter >= min
-        JCTree.JCBinary greaterThanEqualToMin = factory.Binary(JCTree.Tag.LE, 
-                factory.Ident(parameterId), 
+        // Create binary condition for checking if parameter < min
+        JCTree.JCBinary lessThanMin  = factory.Binary(JCTree.Tag.LT, 
+                parseMethod, 
                 factory.Literal(min));
     
-        // Create binary condition for checking if parameter <= max
-        JCTree.JCBinary lessThanEqualToMax = factory.Binary(JCTree.Tag.GE, 
-                factory.Ident(parameterId), 
+        // Create binary condition for checking if parameter > max
+        JCTree.JCBinary greaterThanMax = factory.Binary(JCTree.Tag.GT, 
+                parseMethod, 
                 factory.Literal(max));
-        System.out.println(factory.Binary(JCTree.Tag.OR, greaterThanEqualToMin, lessThanEqualToMax).toString());
-        // Connect the two conditions with an 'AND' operator
-        return factory.Binary(JCTree.Tag.OR, greaterThanEqualToMin, lessThanEqualToMax);
+        
+        
+        System.out.println(factory.Binary(JCTree.Tag.OR,
+        factory.Binary(JCTree.Tag.OR, typeCheckNot, lessThanMin),
+        greaterThanMax).toString());
+        // Connect the three conditions with 'OR' operators
+        return factory.Binary(JCTree.Tag.OR,
+            factory.Binary(JCTree.Tag.OR, typeCheckNot, lessThanMin),
+            greaterThanMax);
     }
 
     private static JCTree.JCBlock createIfBlock (TreeMaker factory, Names symbolsTable, VariableTree parameter) {
@@ -167,4 +185,42 @@ public class NumericJavacPlugin implements Plugin {
                                                 factory.Ident(parameterId)),
                                         factory.Literal(TypeTag.CLASS, errorMessageSuffix))), null))));
     }
+
+    private static double extractDouble(String s) {
+        String temp = "";
+        for(int i = 0; i < s.length(); i++){
+            if('0' <= s.charAt(i) && s.charAt(i) <= '9')
+                temp += s.charAt(i);
+        }
+        return Double.parseDouble(temp);
+    }
+
+    private static JCTree.JCUnary createTypeCheckCondition(TreeMaker factory, Names symbolsTable, Name parameterId, String numericType) {
+        JCTree.JCExpression pattern = null;
+    
+        switch (numericType) {
+            case "int":
+                // Check if parameter is not a valid int
+                pattern = factory.Literal("^-?\\d+$");
+                break;
+            case "double":
+                // Check if parameter is not a valid double
+                pattern = factory.Literal("^-?\\d*\\.?\\d+$");
+                break;
+            case "float":
+                // Check if parameter is not a valid float
+                pattern = factory.Literal("^-?\\d*\\.?\\d+f$");
+                break;
+            default:
+                // No specific numericType, so always return false (non-matching)
+                pattern = factory.Literal("a^");
+                break;
+        }
+    
+        JCTree.JCFieldAccess matchesMethod = factory.Select(factory.Ident(parameterId), symbolsTable.fromString("matches"));
+        JCTree.JCMethodInvocation matchesCall = factory.Apply(com.sun.tools.javac.util.List.nil(), matchesMethod, com.sun.tools.javac.util.List.of(pattern));
+        
+        return factory.Unary(JCTree.Tag.NOT, matchesCall);
+    }
+    
 }

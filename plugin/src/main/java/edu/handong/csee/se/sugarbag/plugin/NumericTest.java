@@ -8,13 +8,13 @@ public class NumericTest {
 
     private void numericTest() {
         // unitTest("10");
-        unitTest(7);
-        unitTest(11);
-        unitTest(1);
-        // unitTest("abc");
+        unitTest("7.0");
+        unitTest("11");
+        unitTest("1");
+        unitTest("abc");
     }
 
-    private void unitTest(@Numeric(min = 5, max = 10, numericType = "int") int number) {
-        System.out.println("This is what we want: " + number);
+    private void unitTest(@Numeric(numericType = "double") String num) {
+        System.out.println("This is what we want: " + num);
     }
 }
