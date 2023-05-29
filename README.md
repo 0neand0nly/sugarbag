@@ -24,7 +24,7 @@ $ ./build.sh
 ---
 
 ### Related Projects
-- [Creating a Java Compiler Plugin - Eugen](https://www.baeldung.com/java-build-compiler-plugin)
+- [Creating a Java Compiler Plugin - baeldung](https://www.baeldung.com/java-build-compiler-plugin)
     - [Github](https://github.com/eugenp/tutorials/tree/master/core-java-modules/core-java-sun)
 
 ---
