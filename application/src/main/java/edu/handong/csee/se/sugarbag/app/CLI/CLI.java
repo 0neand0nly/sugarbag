@@ -11,7 +11,7 @@ import org.apache.commons.cli.*;
 
 public class CLI {
 
-    private List<String> listOfPlugins = new ArrayList<>(Arrays.asList( "Method chaining", "Optional parameters", "Lambda expressions", "Collection literals", "String Interpolation" ));
+    private List<String> listOfPlugins = new ArrayList<>(Arrays.asList( "Postive", "Neutral", "Negative", "NotNull", "InRange(min, max)", "Size(min, max)", "Email", "Numeric(min, max, numericType)", "StringFormat", "Immutable", "Reversed", "Debug" ));
 
 
 
@@ -164,7 +164,7 @@ public class CLI {
             "\t* Email: \t\tThis can be applied to Strings to check whether they conform to the structure of an email address."
         );
         System.out.println(
-            "\t* Numeric(min, max, numericType): \tThis could be applied to Strings which should only contain numeric values in a given range."
+            "\t* Numeric(min, max, numericType): \tThis could be applied to Strings which should only contain numeric values in a given range. The numericType is limited to int and double."
         );
         System.out.println(
             "\t* StringFormat: \tThis can be applied to Strings. The value of the string should match the provided format string."
@@ -191,7 +191,7 @@ public class CLI {
         );
         /*
         public void foo(@Positive int n) {
-                // logging statments inserted into code
+                // n is ensured positive
         }
          */
         System.out.println(
@@ -219,7 +219,7 @@ public class CLI {
          */
         System.out.println();
         System.out.println(
-            "[May 28, 2023]"
+            "[May 29, 2023]"
         );
         System.out.println();
 
