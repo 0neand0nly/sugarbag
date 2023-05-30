@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 
+import org.apache.commons.cli.*;
+
 
 
 public class CLI {
 
-    private List<String> listOfPlugins = new ArrayList<>(Arrays.asList( "Method chaining", "Optional parameters", "Lambda expressions", "Collection literals", "String Interpolation" ));
+    private List<String> listOfPlugins = new ArrayList<>(Arrays.asList( "Postive", "Neutral", "Negative", "NotNull", "InRange(min, max)", "Size(min, max)", "Email", "Numeric(min, max, numericType)", "StringFormat", "Immutable", "Reversed", "Debug" ));
 
 
 
@@ -22,51 +24,58 @@ public class CLI {
 
     public void run() {
 
-        int option = -1;
-        Scanner scanner = new Scanner(System.in);
+        // Create the command line parser
+        CommandLineParser parser = new DefaultParser();
 
-        while(option != 0) {
-            System.out.println();
-            printOptions();
+        // Create the options
+        Options options = new Options();
+        options.addOption("h", "help", false, "Print the help message");
+        options.addOption("f", "file", true, "Specify the input file");
+        options.addOption("b", "bug", false, "Report bugs");
+        options.addOption("m", "man", false, "Print the system manual");
 
-            option = scanner.nextInt();
-            scanner.nextLine(); // consume \n character
+        try {
+            // Parse the command line arguments
+            CommandLine cmd = parser.parse(options, args);
 
-            if (option == 0)
-                break;
+            // Check if the help option is specified
+            if (cmd.hasOption("h")) {
+                // Print the help message
+                HelpFormatter formatter = new HelpFormatter();
+                formatter.printHelp("SugarBag", options);
 
-            switch (option) {
-                case 1:
-                    System.out.println();
-                    System.out.println("> Add plugin");
-                    System.out.print(">>> ");
+                return;
+            } else if (cmd.hasOption("b")) {
+                // Print the bug report information
+                printAdminInfo();
+                
+                return;
+            } else if (cmd.hasOption("m")) {
+                // Print the system manual
+                printSystemManual();
 
-                    String newPlugin = scanner.nextLine();
-                    addPlugin(newPlugin);
-
-                    System.out.println();
-                    break;
-                case 2:
-                    System.out.println();
-                    System.out.println("> Email admin for bug reports");
-                    System.out.println();
-                    printAdminInfo();
-                    break;
-                case 3:
-                    System.out.println();
-                    System.out.println("> SugarBag system manual");
-                    System.out.println();
-                    printSystemManual();
-                    break;
-                default:
-                    System.out.println();
-                    System.out.println("> Wrong option given");
-                    System.out.println();
-                    break;
+                return;
             }
+
+            // Get the value of the file option
+            String inputFile = cmd.getOptionValue("f");
+            if (inputFile != null) {
+                // Process the input file
+                System.out.println("Input file: " + inputFile);
+            } else {
+                System.out.println("Input file not specified");
+            }
+        } catch (ParseException e) {
+            System.err.println("Error parsing command line arguments: " + e.getMessage());
         }
 
-        scanner.close();
+        // Start CLI for SugarBag
+        System.out.println("********* SugarBag *********");
+
+        List<String> plugins = getListOfPlugins();
+        for (int i = 0; i < plugins.size(); i++) {
+            System.out.println("\t" + (i+1) + ") " + plugins.get(i));
+        }
 
     }
 
@@ -74,49 +83,17 @@ public class CLI {
 
         return listOfPlugins;
 
-        /*
-         * refresh list
-         * check plugin info
-         * choose plugin
-         *      execute javac
-         */
-
-    }
-
-    public void addPlugin(String newPlugin) {
-
-        listOfPlugins.add(listOfPlugins.size(), newPlugin);
-
-    }
-    
-    public void printOptions() {
-
-        System.out.println("********* SugarBag *********");
-
-        System.out.println("> List of plugins");
-        List<String> plugins = getListOfPlugins();
-        for (int i = 0; i < plugins.size(); i++) {
-            System.out.println("\t" + (i+1) + ") " + plugins.get(i));
-        }
-
-        System.out.println("1) Add plugin");
-        System.out.println("2) Bug report");
-        System.out.println("3) System manual");
-        System.out.println("0) Quit program");
-
-        System.out.print("\n>>> ");
-
     }
 
     public void printAdminInfo() {
 
         System.out.println("> Admin info");
         System.out.println("\t* 21800637@handong.ac.kr");
-        System.out.println("\t* 22100113@handong.ac.kr");
+        System.out.println("\t* 21700383@handong.ac.kr");
         System.out.println("\t* naver@handong.ac.kr");
         System.out.println("\t* 21800353@handong.ac.kr");
-        System.out.println("\t* 21700383@handong.ac.kr");
         System.out.println("\t* inwoo405@handong.ac.kr");
+        System.out.println("\t* 22100113@handong.ac.kr");
 
     }
 
@@ -166,19 +143,40 @@ public class CLI {
             "METHODS"
         );
         System.out.println(
-            "\t* Method chaining: \t\tChains multiple method calls together on a single object."
+            "\t* Postive: \t\tEnsures a number is positive. Greater than zero."
         );
         System.out.println(
-            "\t* Optional parameters: \t\tProvides default values for parameters in method calls."
+            "\t* Neutral: \t\tEnsures a number is neutral. Equal to zero."
         );
         System.out.println(
-            "\t* Lambda expressions: \t\tEnables inline functions to be utilized."
+            "\t* Negative: \t\tEnsures a number is negative. Less than zero."
         );
         System.out.println(
-            "\t* Collection literals: \t\tInitializes collections with shorthand syntax."
+            "\t* NotNull: \t\tCheck that the value of the variable is not null. This can be applied to any object and would throw a RuntimeException (or any custom exception) when the value is null."
         );
         System.out.println(
-            "\t* String Interpolation: \tEmbeds expressions inside a string literal."
+            "\t* InRange(min, max): \tChecks whether a numerical value is within a given range. You would have to provide two parameters for this annotation: the minimum and maximum allowable values."
+        );
+        System.out.println(
+            "\t* Size(min, max): \tThis can be applied to collections (like Lists, Sets, Maps) or arrays, to check whether their size is within the given range."
+        );
+        System.out.println(
+            "\t* Email: \t\tThis can be applied to Strings to check whether they conform to the structure of an email address."
+        );
+        System.out.println(
+            "\t* Numeric(min, max, numericType): \tThis could be applied to Strings which should only contain numeric values in a given range. The numericType is limited to int and double."
+        );
+        System.out.println(
+            "\t* StringFormat: \tThis can be applied to Strings. The value of the string should match the provided format string."
+        );
+        System.out.println(
+            "\t* Immutable: \t\tThis could be used to indicate that the value of a variable should not be changed once it's set. This could be used for enforcing immutability on objects."
+        );
+        System.out.println(
+            "\t* Reversed: \t\t."
+        );
+        System.out.println(
+            "\t* Debug: \t\t."
         );
         System.out.println();
 
@@ -189,32 +187,15 @@ public class CLI {
             "EXAMPLES"
         );
         System.out.println(
-            "\tThe @Log annotation indicates that the method should be logged:\n"
+            "\tThe @Positive annotation indicates that the number is greater than zero i.e. positive:\n"
         );
         /*
-        @Log
-        public void foo() {
-                // logging statments inserted into code
+        public void foo(@Positive int n) {
+                // n is ensured positive
         }
          */
         System.out.println(
-            "\t\t@Log\n\t\tpublic void foo() {\n\t\t\t// method to be logged\n\t\t}\n"
-        );
-        System.out.println(
-            "\tThe @HandleException annotation automates the generation of try-catch blocks:\n"
-        );
-        /*
-        @HandleException
-        public void foo() {
-                try {
-                    // try 
-                } catch ( // exception ) {
-                    // catch
-                }
-        }
-         */
-        System.out.println(
-            "\t\t@HandleException\n\t\tpublic void foo() {\n\t\t\ttry {\n\t\t\t\t// try\n\t\t\t} catch ( // exception ) {\n\t\t\t\t// catch\n\t\t\t}\n\t\t}\n"
+            "\t\tpublic void foo(@Positive int n) {\n\t\t\t// n is ensured positive\n\t\t}\n"
         );
         System.out.println();
 
@@ -228,7 +209,7 @@ public class CLI {
             "\tThe plug-in is compatible for the following versions of java:"
         );
         System.out.println(
-            "\t\t* openjdk 19.0.1"
+            "\t\t* openjdk 11.X.X"
         );
         System.out.println();
 
@@ -238,7 +219,7 @@ public class CLI {
          */
         System.out.println();
         System.out.println(
-            "[May 24, 2023]"
+            "[May 29, 2023]"
         );
         System.out.println();
 
