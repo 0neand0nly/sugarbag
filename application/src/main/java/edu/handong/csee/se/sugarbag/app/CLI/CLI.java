@@ -11,8 +11,8 @@ import org.apache.commons.cli.*;
 
 public class CLI {
 
-    private List<String> listOfPlugins = new ArrayList<>(Arrays.asList( "Postive", "Neutral", "Negative", "NotNull", "InRange(min, max)", "Size(min, max)", "Email", "Numeric(min, max, numericType)", "StringFormat", "Immutable", "Reversed", "Debug" ));
-
+    private List<String> listOfPlugins = new ArrayList<>(Arrays.asList( "Postive", "Neutral", "Negative", "NotNull", "InRange", "Size", "Email", "Numeric", "StringFormat", "Immutable", "Reversed", "Debug" ));
+    private String workDirectory = "./src/main/java/edu/handong/csee/se/sugarbag/plugin/";
 
 
     public static void main(String[] args) {
@@ -33,6 +33,8 @@ public class CLI {
         options.addOption("f", "file", true, "Specify the input file");
         options.addOption("b", "bug", false, "Report bugs");
         options.addOption("m", "man", false, "Print the system manual");
+
+        String inputFile = "";
 
         try {
             // Parse the command line arguments
@@ -58,7 +60,7 @@ public class CLI {
             }
 
             // Get the value of the file option
-            String inputFile = cmd.getOptionValue("f");
+            inputFile = cmd.getOptionValue("f");
             if (inputFile != null) {
                 // Process the input file
                 System.out.println("Input file: " + inputFile);
@@ -72,10 +74,56 @@ public class CLI {
         // Start CLI for SugarBag
         System.out.println("********* SugarBag *********");
 
-        List<String> plugins = getListOfPlugins();
-        for (int i = 0; i < plugins.size(); i++) {
-            System.out.println("\t" + (i+1) + ") " + plugins.get(i));
+        printListOfPlugins();
+
+        // get input of used plug-ins from the user.
+        Scanner scanner = new Scanner(System.in);
+        List<String> inputPluginList = new ArrayList<>();
+
+        String input = "";
+        while (!input.equalsIgnoreCase("q") || !input.equalsIgnoreCase("quit")) {
+            System.out.print("Enter a name of plug-in used (or 'q' to quit): ");
+            input = scanner.nextLine();
+
+            if (!input.equalsIgnoreCase("q") || !input.equalsIgnoreCase("quit")) {
+                inputPluginList.add(input);
+            }
         }
+        scanner.close();
+
+        // concat working directory path to the list of plugins selected
+        for (int idx = 0; idx < inputPluginList.size(); idx++) {
+            String temp = getWorkDirectory() + inputPluginList.get(idx) + ".java";
+        }
+
+        // compile process of given files and plug-ins
+        List<String> commandArguments = new ArrayList<>();
+        commandArguments.add("javac");
+        commandArguments.add("-d");
+        commandArguments.add("bin/main");
+        commandArguments.add("--add-exports");
+        commandArguments.add("jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED");
+        commandArguments.add("--add-exports");
+        commandArguments.add("jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED");
+        commandArguments.add("--add-exports");
+        commandArguments.add("jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED");
+        commandArguments.add("--add-exports");
+        commandArguments.add("jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED");
+        commandArguments.add("./src/main/java/edu/handong/csee/se/sugarbag/plugin/TestPlugin.java");
+
+        for (String inputPlugin : inputPluginList) {
+            commandArguments.add(inputPlugin);
+        }
+
+        // 1. compile selected plugins
+        ProcessBuilder pluginCompiler = new ProcessBuilder(commandArguments.toArray(new String[0]));
+
+        // 2. compile given source file with -Xplugin:TestPlugin option
+        ProcessBuilder sourceCompiler = new ProcessBuilder("javac", "-d", "bin/main", "-cp", "bin/main", "-Xplugin:TestPlugin", inputFile);
+
+        // 3. execute the source file with plug-ins
+        Process processRunner = sourceCompiler.start();
+        processRunner.waitFor();
 
     }
 
@@ -83,6 +131,22 @@ public class CLI {
 
         return listOfPlugins;
 
+    }
+
+    public String getWorkDirectory() {
+
+        return workDirectory;
+
+    }
+
+    public void printListOfPlugins() {
+
+        List<String> plugins = getListOfPlugins();
+
+        for (int i = 0; i < plugins.size(); i++) {
+            System.out.println("\t" + (i+1) + ") " + plugins.get(i));
+        }
+            
     }
 
     public void printAdminInfo() {
