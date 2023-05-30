@@ -12,7 +12,9 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.util.TreeScanner;
+import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Names;
 
 /**
  * Scanner that modifies AST based on the annotation.
@@ -20,20 +22,41 @@ import com.sun.tools.javac.util.Context;
 @SuppressWarnings("unchecked")
 public abstract class ASTModificationScanner 
         extends TreeScanner<Void, List<Tree>> {    
-    protected Context context;
+    protected TreeMaker treeMaker;
+    protected Names symbolTable;
     protected String annotationName;
     protected String identifierType;
 
     public ASTModificationScanner(Context context, String annotationName, 
                                   String identifierType) {
-        this.context = context;
+        treeMaker = TreeMaker.instance(context);
+        symbolTable = Names.instance(context);
         this.annotationName = annotationName;
         this.identifierType = identifierType;
     }
 
     public ASTModificationScanner(Context context, String annotationName) {
-        this.context = context;
+        treeMaker = TreeMaker.instance(context);
+        symbolTable = Names.instance(context);
         this.annotationName = annotationName;
+    }
+
+    @Override
+    public Void visitMethod(MethodTree node, List<Tree> p) {
+        List<Tree> targets = findFromMethod(node);
+        
+        if (targets != null) {
+            p.addAll(targets);
+        }
+        
+        super.visitMethod(node, p);
+        modifyMethod(node, p);
+        
+        if (targets != null) {
+            p.removeAll(targets);
+        }
+
+        return null;
     }
 
     @Override
