@@ -22,11 +22,15 @@ dependencies {
 
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:31.1-jre'
+
+    // https://mvnrepository.com/artifact/commons-cli/commons-cli
+    implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
+
 }
 
 application {
     // Define the main class for the application.
-    mainClass = 'edu.handong.csee.se.sugarbag.application.SugarBag'
+    mainClass = 'edu.handong.csee.se.sugarbag.app.CLI'
 }
 
 tasks.named('test') {
