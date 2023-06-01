@@ -6,10 +6,14 @@ import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
 import com.sun.source.util.TaskEvent.Kind;
 
+import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.TreeVisitor;
 import com.sun.source.tree.VariableTree;
-import com.sun.source.util.*;
+import com.sun.source.util.TreeScanner;
+import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.api.BasicJavacTask;
 import com.sun.tools.javac.code.TargetType;
 import com.sun.tools.javac.code.TypeTag;
@@ -19,64 +23,20 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
-
-
 import javax.tools.JavaCompiler;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.sun.tools.javac.util.List.nil;
 
-public class PositivePlugin implements Plugin {
+public class PositivePlugin extends ASTModificationPlugin {
     public static String NAME = "PositivePlugin";
-
-    private static Set<String> TARGET_TYPES = new HashSet<>(Arrays.asList(
-            // Use only primitive types for simplicity
-            byte.class.getName(), short.class.getName(), char.class.getName(),
-            int.class.getName(), long.class.getName(), float.class.getName(), double.class.getName()));
-
-    @Override
+    //@Override
     public String getName() {
         return NAME;
     }
-
-    @Override
-    public void init(JavacTask task, String... args) {
-        Context context = ((BasicJavacTask) task).getContext();
-        task.addTaskListener(new TaskListener() {
-
-            @Override
-            public void finished(TaskEvent e) {
-                if (e.getKind() != TaskEvent.Kind.PARSE) {
-                    return;
-                }
-
-                e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
-                    @Override
-                    public Void visitClass(ClassTree node, Void aVoid) {
-                        return super.visitClass(node, aVoid);
-                    }
-
-                    @Override
-                    public Void visitMethod(MethodTree method, Void v) {
-                        List<VariableTree> parametersToInstrument
-                                = method.getParameters().stream()
-                                .filter(PositivePlugin.this::shouldInstrument)
-                                .collect(Collectors.toList());
-                        if(!parametersToInstrument.isEmpty()) {
-                            Collections.reverse(parametersToInstrument);
-                            parametersToInstrument.forEach(p -> addCheck(method, p, context));
-                        }
-                        return super.visitMethod(method, v);
-                    }
-                }, null);
-            }
-        });
-    }
-
+    
     private boolean shouldInstrument(VariableTree parameter) {
-        return TARGET_TYPES.contains(parameter.getType().toString())
-                && parameter.getModifiers().getAnnotations()
+        return parameter.getModifiers().getAnnotations()
                 .stream()
                 .anyMatch(a -> Positive.class.getSimpleName().equals(a.getAnnotationType().toString()));
     }
@@ -116,7 +76,7 @@ public class PositivePlugin implements Plugin {
 
         return factory.Block(0, com.sun.tools.javac.util.List.of(
                 factory.Throw(
-                        factory.NewClass(null, nil(),
+                        factory.NewClass(null, null,
                                 factory.Ident(symbolsTable.fromString(
                                         IllegalArgumentException.class.getSimpleName())),
                                 com.sun.tools.javac.util.List.of(factory.Binary(JCTree.Tag.PLUS,
@@ -124,5 +84,29 @@ public class PositivePlugin implements Plugin {
                                                 factory.Literal(TypeTag.CLASS, errorMessagePrefix),
                                                 factory.Ident(parameterId)),
                                         factory.Literal(TypeTag.CLASS, errorMessageSuffix))), null))));
+    }
+
+    @Override
+    protected TreeScanner<Void, List<Tree>> createVisitor(Context context) {
+        TreeScanner treeScanner = new TreeScanner<Void, List<Tree>>() {
+            @Override
+            public Void visitClass(ClassTree node, List<Tree> aVoid) {
+                return super.visitClass(node, aVoid);
+            }
+
+            @Override
+            public Void visitMethod(MethodTree method, List<Tree> v) {
+                List<VariableTree> parametersToInstrument
+                        = method.getParameters().stream()
+                        .filter(PositivePlugin.this::shouldInstrument)
+                        .collect(Collectors.toList());
+                if(!parametersToInstrument.isEmpty()) {
+                    Collections.reverse(parametersToInstrument);
+                    parametersToInstrument.forEach(p -> addCheck(method, p, context));
+                }
+                return super.visitMethod(method, v);
+            }
+        };
+        return treeScanner;
     }
 }

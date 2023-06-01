@@ -1,15 +1,14 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
-import com.sun.source.util.JavacTask;
-import com.sun.source.util.Plugin;
-import com.sun.source.util.TaskEvent;
-import com.sun.source.util.TaskListener;
 import com.sun.source.util.TaskEvent.Kind;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.TreeVisitor;
 import com.sun.source.tree.VariableTree;
-import com.sun.source.util.*;
+import com.sun.source.util.TreeScanner;
+import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.api.BasicJavacTask;
 import com.sun.tools.javac.code.TargetType;
 import com.sun.tools.javac.code.TypeTag;
@@ -28,58 +27,16 @@ import javax.tools.JavaCompiler;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.sun.tools.javac.util.List.nil;
-
-public class InRangePlugin implements Plugin {
+public class InRangePlugin extends ASTModificationPlugin {
     public static String NAME = "InRangePlugin";
-
-    private static Set<String> TARGET_TYPES = new HashSet<>(Arrays.asList(
-            // Use only primitive types for simplicity
-            byte.class.getName(), short.class.getName(), char.class.getName(),
-            int.class.getName(), long.class.getName(), float.class.getName(), double.class.getName()));
 
     @Override
     public String getName() {
         return NAME;
     }
 
-    @Override
-    public void init(JavacTask task, String... args) {
-        Context context = ((BasicJavacTask) task).getContext();
-        task.addTaskListener(new TaskListener() {
-
-            @Override
-            public void finished(TaskEvent e) {
-                if (e.getKind() != TaskEvent.Kind.PARSE) {
-                    return;
-                }
-
-                e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
-                    @Override
-                    public Void visitClass(ClassTree node, Void aVoid) {
-                        return super.visitClass(node, aVoid);
-                    }
-
-                    @Override
-                    public Void visitMethod(MethodTree method, Void v) {
-                        List<VariableTree> parametersToInstrument
-                                = method.getParameters().stream()
-                                .filter(InRangePlugin.this::shouldInstrument)
-                                .collect(Collectors.toList());
-                        if(!parametersToInstrument.isEmpty()) {
-                            Collections.reverse(parametersToInstrument);
-                            parametersToInstrument.forEach(p -> addCheck(method, p, context));
-                        }
-                        return super.visitMethod(method, v);
-                    }
-                }, null);
-            }
-        });
-    }
-
     private boolean shouldInstrument(VariableTree parameter) {
-        return TARGET_TYPES.contains(parameter.getType().toString())
-                && parameter.getModifiers().getAnnotations()
+        return parameter.getModifiers().getAnnotations()
                 .stream()
                 .anyMatch(a -> InRange.class.getSimpleName().equals(a.getAnnotationType().toString()));
     }
@@ -128,7 +85,7 @@ public class InRangePlugin implements Plugin {
 
         return factory.Block(0, com.sun.tools.javac.util.List.of(
                 factory.Throw(
-                        factory.NewClass(null, nil(),
+                        factory.NewClass(null, null,
                                 factory.Ident(symbolsTable.fromString(
                                         IllegalArgumentException.class.getSimpleName())),
                                 com.sun.tools.javac.util.List.of(factory.Binary(JCTree.Tag.PLUS,
@@ -184,5 +141,29 @@ public class InRangePlugin implements Plugin {
             default:
                 return factory.Literal(TypeTag.BOT, null);
         }
+    }
+    
+    @Override
+    protected TreeScanner<Void, List<Tree>> createVisitor(Context context) {
+        TreeScanner treeScanner = new TreeScanner<Void, List<Tree>>() {
+            @Override
+            public Void visitClass(ClassTree node, List<Tree> aVoid) {
+                return super.visitClass(node, aVoid);
+            }
+
+            @Override
+            public Void visitMethod(MethodTree method, List<Tree> v) {
+                List<VariableTree> parametersToInstrument
+                        = method.getParameters().stream()
+                        .filter(InRangePlugin.this::shouldInstrument)
+                        .collect(Collectors.toList());
+                if(!parametersToInstrument.isEmpty()) {
+                    Collections.reverse(parametersToInstrument);
+                    parametersToInstrument.forEach(p -> addCheck(method, p, context));
+                }
+                return super.visitMethod(method, v);
+            }
+        };
+        return treeScanner;
     }
 }
