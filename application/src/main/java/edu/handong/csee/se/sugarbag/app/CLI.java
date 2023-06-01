@@ -13,7 +13,8 @@ import org.apache.commons.cli.*;
 public class CLI {
 
     private List<String> listOfPlugins = new ArrayList<>(Arrays.asList( "Postive", "Neutral", "Negative", "NotNull", "InRange", "Size", "Email", "Numeric", "StringFormat", "Immutable", "Reversed", "Debug" ));
-    private String workDirectory = "../plugin/src/main/java/edu/handong/csee/se/sugarbag/plugin/";
+    private String workDirectory = System.getProperty("user.dir") +  "\\src\\main\\java\\edu\\handong\\csee\\se\\sugarbag\\plugin\\";
+
 
 
     public static void main(String[] args) {
@@ -82,11 +83,11 @@ public class CLI {
         System.out.println("********* SugarBag *********");
 
         // concat working directory path to the list of plugins selected
-        for (int i = 0; i < userPlugins.size(); i++) {
-            String concatHolder = getWorkDirectory() + userPlugins.get(i) + ".java";
-            userPlugins.set(i, concatHolder);
-            printString(userPlugins.get(i));
-        }
+        // for (int i = 0; i < userPlugins.size(); i++) {
+        //     String concatHolder = getWorkDirectory() + userPlugins.get(i) + ".java";
+        //     userPlugins.set(i, concatHolder);
+        //     printString(userPlugins.get(i));
+        // }
 
         // compile process of given files and plug-ins
         List<String> commandArguments = new ArrayList<>();
@@ -101,13 +102,19 @@ public class CLI {
         commandArguments.add("jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED");
         commandArguments.add("--add-exports");
         commandArguments.add("jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED");
-        commandArguments.add("../plugin/src/main/java/edu/handong/csee/se/sugarbag/plugin/TestPlugin.java");
-        commandArguments.add("../plugin/src/main/java/edu/handong/csee/se/sugarbag/plugin/ASTModificationPlugin.java");
+        commandArguments.add(workDirectory + "TestPlugin.java");
+        commandArguments.add(workDirectory + "ASTModificationPlugin.java");
 
         for (String userPlugin : userPlugins) {
-            commandArguments.add(userPlugin);
+            commandArguments.add(workDirectory + userPlugin + ".java");
+            commandArguments.add(workDirectory + userPlugin + "CheckPlugin.java");
+            // commandArguments.add(workDirectory + userPlugin + "Test.java");
         }
 
+        for (int i = 0; i < commandArguments.size(); i++) {
+            printString(commandArguments.get(i));
+        }
+        
         // 1. compile selected plugins
         ProcessBuilder pluginCompiler = new ProcessBuilder(commandArguments.toArray(new String[0]));
 
