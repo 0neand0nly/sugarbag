@@ -33,7 +33,7 @@ import com.sun.tools.javac.util.Names;
  * A {@link JavaCompiler javac} plugin which inserts {@code >= min && <= max} checks into resulting {@code *.class} files
  * for string method parameters marked by {@link Numeric}
  */
-public class NumericJavacPlugin implements Plugin {
+public class NumericJavacPlugin extends ASTModificationPlugin {
 
     public static final String NAME = "NumericJavacPlugin";
 
@@ -42,49 +42,49 @@ public class NumericJavacPlugin implements Plugin {
         byte.class.getName(), short.class.getName(), char.class.getName(),
         int.class.getName(), long.class.getName(), float.class.getName(), double.class.getName()));
 
-    @Override
+    // @Override
     public String getName() {
         return NAME;
     }
 
-    @Override
-    public void init(JavacTask task, String... args) {
-        Context context = ((BasicJavacTask) task).getContext();
-        task.addTaskListener(new TaskListener() {
+    // @Override
+    // public void init(JavacTask task, String... args) {
+    //     Context context = ((BasicJavacTask) task).getContext();
+    //     task.addTaskListener(new TaskListener() {
             
-            @Override
-            public void started(TaskEvent e) {
-            }
+    //         @Override
+    //         public void started(TaskEvent e) {
+    //         }
 
-            @Override
-            public void finished(TaskEvent e) {
+    //         @Override
+    //         public void finished(TaskEvent e) {
                 
-                if (e.getKind() != TaskEvent.Kind.PARSE) {
-                    return;
-                }
+    //             if (e.getKind() != TaskEvent.Kind.PARSE) {
+    //                 return;
+    //             }
                 
-                e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
-                    @Override
-                    public Void visitClass(ClassTree node, Void aVoid) {
-                        return super.visitClass(node, aVoid);
-                    }
+    //             e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
+    //                 @Override
+    //                 public Void visitClass(ClassTree node, Void aVoid) {
+    //                     return super.visitClass(node, aVoid);
+    //                 }
 
-                    @Override
-                    public Void visitMethod(MethodTree method, Void v) {
-                        List<VariableTree> parametersToInstrument
-                                = method.getParameters().stream()
-                                .filter(NumericJavacPlugin.this::shouldInstrument)
-                                .collect(Collectors.toList());
-                        if(!parametersToInstrument.isEmpty()) {
-                            Collections.reverse(parametersToInstrument);
-                            parametersToInstrument.forEach(p -> addCheck(method, p, context));
-                        }
-                        return super.visitMethod(method, v);
-                    }
-                }, null);
-            }
-        });
-    }
+    //                 @Override
+    //                 public Void visitMethod(MethodTree method, Void v) {
+    //                     List<VariableTree> parametersToInstrument
+    //                             = method.getParameters().stream()
+    //                             .filter(NumericJavacPlugin.this::shouldInstrument)
+    //                             .collect(Collectors.toList());
+    //                     if(!parametersToInstrument.isEmpty()) {
+    //                         Collections.reverse(parametersToInstrument);
+    //                         parametersToInstrument.forEach(p -> addCheck(method, p, context));
+    //                     }
+    //                     return super.visitMethod(method, v);
+    //                 }
+    //             }, null);
+    //         }
+    //     });
+    // }
 
     private boolean shouldInstrument(VariableTree parameter) {
         return "String".contains(parameter.getType().toString())
@@ -135,7 +135,7 @@ public class NumericJavacPlugin implements Plugin {
         JCTree.JCUnary typeCheckNot = createTypeCheckCondition(factory, symbolsTable, parameterId, numericType);
 
         JCTree.JCMethodInvocation parseMethod;
-        if(numericType.equals("int")) {
+        if(numericType.equals("int") || numericType.equals("Integer")) {
             parseMethod = factory.Apply(com.sun.tools.javac.util.List.nil(),
                     factory.Select(factory.Ident(symbolsTable.fromString("Integer")), symbolsTable.fromString("parseInt")), 
                     com.sun.tools.javac.util.List.of(factory.Ident(parameterId)));
@@ -221,6 +221,29 @@ public class NumericJavacPlugin implements Plugin {
         JCTree.JCMethodInvocation matchesCall = factory.Apply(com.sun.tools.javac.util.List.nil(), matchesMethod, com.sun.tools.javac.util.List.of(pattern));
         
         return factory.Unary(JCTree.Tag.NOT, matchesCall);
-    }
+    }//!num.matches()
     
+    @Override
+    protected TreeScanner<Void, List<Tree>> createVisitor(Context context) {
+        TreeScanner treeScanner = new TreeScanner<Void, Void>() {
+            @Override
+            public Void visitClass(ClassTree node, Void aVoid) {
+                return super.visitClass(node, aVoid);
+            }
+
+            @Override
+            public Void visitMethod(MethodTree method, Void v) {
+                List<VariableTree> parametersToInstrument
+                        = method.getParameters().stream()
+                        .filter(NumericJavacPlugin.this::shouldInstrument)
+                        .collect(Collectors.toList());
+                if(!parametersToInstrument.isEmpty()) {
+                    Collections.reverse(parametersToInstrument);
+                    parametersToInstrument.forEach(p -> addCheck(method, p, context));
+                }
+                return super.visitMethod(method, v);
+            }
+        };
+        return treeScanner;
+    }
 }
