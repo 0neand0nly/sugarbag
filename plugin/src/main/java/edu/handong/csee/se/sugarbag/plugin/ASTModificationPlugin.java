@@ -43,5 +43,5 @@ public abstract class ASTModificationPlugin implements Plugin {
      * @return the <code>TreeVisitor</code>
      */
     protected abstract TreeVisitor<Void, List<Tree>> createVisitor(
-            int context);
+    		Context context);
 }
