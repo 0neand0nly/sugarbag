@@ -156,9 +156,6 @@ public class NumericJavacPlugin extends ASTModificationPlugin {
                 factory.Literal(max));
         
         
-        System.out.println(factory.Binary(JCTree.Tag.OR,
-        factory.Binary(JCTree.Tag.OR, typeCheckNot, lessThanMin),
-        greaterThanMax).toString());
         // Connect the three conditions with 'OR' operators
         return factory.Binary(JCTree.Tag.OR,
             factory.Binary(JCTree.Tag.OR, typeCheckNot, lessThanMin),
