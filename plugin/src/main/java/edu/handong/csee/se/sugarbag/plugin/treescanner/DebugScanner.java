@@ -170,7 +170,8 @@ public class DebugScanner extends ASTModificationScanner {
                                           + variable.getName() 
 										  + " changed to: "),
                         treeMaker.Ident(symbolTable.fromString(
-                                variable.getName().toString())))));
+                                variable.getName().toString())))),
+				makePrintStatement(null));
     }
 
     /**
@@ -178,7 +179,7 @@ public class DebugScanner extends ASTModificationScanner {
      * @param arg the argument
      * @return the print statement
      */
-    private JCTree.JCStatement makePrintStatement(ExpressionTree arg) {
+    private JCTree.JCStatement makePrintStatement(JCTree.JCExpression arg) {
         return treeMaker.Exec(treeMaker.Apply(
                 null,
                 treeMaker.Select(
@@ -187,6 +188,7 @@ public class DebugScanner extends ASTModificationScanner {
                                         symbolTable.fromString("System")), 
                                 symbolTable.fromString("out")), 
                         symbolTable.fromString("println")),
-                com.sun.tools.javac.util.List.of((JCTree.JCExpression) arg)));        
+                arg == null ? com.sun.tools.javac.util.List.nil() 
+							: com.sun.tools.javac.util.List.of(arg)));        
     }
 }
