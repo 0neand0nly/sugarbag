@@ -14,6 +14,7 @@ import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.TreeVisitor;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.Plugin;
@@ -37,54 +38,10 @@ public class NumericJavacPlugin extends ASTModificationPlugin {
 
     public static final String NAME = "NumericJavacPlugin";
 
-    private static Set<String> TARGET_TYPES = new HashSet<>(Arrays.asList(
-        // Use only primitive types for simplicity
-        byte.class.getName(), short.class.getName(), char.class.getName(),
-        int.class.getName(), long.class.getName(), float.class.getName(), double.class.getName()));
-
     // @Override
     public String getName() {
         return NAME;
     }
-
-    // @Override
-    // public void init(JavacTask task, String... args) {
-    //     Context context = ((BasicJavacTask) task).getContext();
-    //     task.addTaskListener(new TaskListener() {
-            
-    //         @Override
-    //         public void started(TaskEvent e) {
-    //         }
-
-    //         @Override
-    //         public void finished(TaskEvent e) {
-                
-    //             if (e.getKind() != TaskEvent.Kind.PARSE) {
-    //                 return;
-    //             }
-                
-    //             e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
-    //                 @Override
-    //                 public Void visitClass(ClassTree node, Void aVoid) {
-    //                     return super.visitClass(node, aVoid);
-    //                 }
-
-    //                 @Override
-    //                 public Void visitMethod(MethodTree method, Void v) {
-    //                     List<VariableTree> parametersToInstrument
-    //                             = method.getParameters().stream()
-    //                             .filter(NumericJavacPlugin.this::shouldInstrument)
-    //                             .collect(Collectors.toList());
-    //                     if(!parametersToInstrument.isEmpty()) {
-    //                         Collections.reverse(parametersToInstrument);
-    //                         parametersToInstrument.forEach(p -> addCheck(method, p, context));
-    //                     }
-    //                     return super.visitMethod(method, v);
-    //                 }
-    //             }, null);
-    //         }
-    //     });
-    // }
 
     private boolean shouldInstrument(VariableTree parameter) {
         return "String".contains(parameter.getType().toString())
@@ -146,19 +103,15 @@ public class NumericJavacPlugin extends ASTModificationPlugin {
         }
         
         // Create binary condition for checking if parameter < min
-        JCTree.JCBinary lessThanMin  = factory.Binary(JCTree.Tag.LT, 
+        JCTree.JCBinary lessThanMin  = factory.Binary(JCTree.Tag.GT, 
                 parseMethod, 
                 factory.Literal(min));
     
         // Create binary condition for checking if parameter > max
-        JCTree.JCBinary greaterThanMax = factory.Binary(JCTree.Tag.GT, 
+        JCTree.JCBinary greaterThanMax = factory.Binary(JCTree.Tag.LT, 
                 parseMethod, 
                 factory.Literal(max));
         
-        
-        System.out.println(factory.Binary(JCTree.Tag.OR,
-        factory.Binary(JCTree.Tag.OR, typeCheckNot, lessThanMin),
-        greaterThanMax).toString());
         // Connect the three conditions with 'OR' operators
         return factory.Binary(JCTree.Tag.OR,
             factory.Binary(JCTree.Tag.OR, typeCheckNot, lessThanMin),
@@ -225,14 +178,14 @@ public class NumericJavacPlugin extends ASTModificationPlugin {
     
     @Override
     protected TreeScanner<Void, List<Tree>> createVisitor(Context context) {
-        TreeScanner treeScanner = new TreeScanner<Void, Void>() {
+        TreeScanner treeScanner = new TreeScanner<Void, List<Tree>>() {
             @Override
-            public Void visitClass(ClassTree node, Void aVoid) {
+            public Void visitClass(ClassTree node, List<Tree> aVoid) {
                 return super.visitClass(node, aVoid);
             }
 
             @Override
-            public Void visitMethod(MethodTree method, Void v) {
+            public Void visitMethod(MethodTree method, List<Tree> v) {
                 List<VariableTree> parametersToInstrument
                         = method.getParameters().stream()
                         .filter(NumericJavacPlugin.this::shouldInstrument)

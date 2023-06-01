@@ -101,34 +101,15 @@ public class EmailCheckPlugin extends ASTModificationPlugin{
 
     @Override
     protected TreeScanner<Void, List<Tree>> createVisitor(Context context) {
-        // ASTModificationScanner scanner = new ASTModificationScanner(context, NAME) {
-        //     // @Override
-        //     public Void visitClass(ClassTree node, Void aVoid) {
-        //         return super.visitClass(node, aVoid);
-        //     }
 
-        //     @Override
-        //     public Void visitMethod(MethodTree method, Void v) {
-        //         List<VariableTree> parametersToInstrument
-        //                 = method.getParameters().stream()
-        //                 .filter(EmailCheckPlugin.this::shouldInstrument)
-        //                 .collect(Collectors.toList());
-        //         if(!parametersToInstrument.isEmpty()) {
-        //             Collections.reverse(parametersToInstrument);
-        //             parametersToInstrument.forEach(p -> addCheck(method, p, context));
-        //         }
-        //         return super.visitMethod(method, v);
-        //     }
-        // };
-
-        TreeScanner treeScanner = new TreeScanner<Void, Void>() {
+        TreeScanner treeScanner = new TreeScanner<Void, List<Tree>>() {
             @Override
-            public Void visitClass(ClassTree node, Void aVoid) {
+            public Void visitClass(ClassTree node, List<Tree> aVoid) {
                 return super.visitClass(node, aVoid);
             }
 
             @Override
-            public Void visitMethod(MethodTree method, Void v) {
+            public Void visitMethod(MethodTree method, List<Tree> v) {
                 List<VariableTree> parametersToInstrument
                         = method.getParameters().stream()
                         .filter(EmailCheckPlugin.this::shouldInstrument)

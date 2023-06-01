@@ -43,44 +43,6 @@ public class StringMatchPlugin extends ASTModificationPlugin{
         return NAME;
     }
 
-    // @Override
-    // public void init(JavacTask task, String... args) {
-    //     Context context = ((BasicJavacTask) task).getContext();
-    //     task.addTaskListener(new TaskListener() {
-    //         @Override
-    //         public void started(TaskEvent e) {
-    //         }
-
-    //         @Override
-    //         public void finished(TaskEvent e) {
-    //             if (e.getKind() != TaskEvent.Kind.PARSE) {
-    //                 return;
-    //             }
-                
-    //             e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
-    //                 @Override
-    //                 public Void visitClass(ClassTree node, Void aVoid) {
-    //                     return super.visitClass(node, aVoid);
-    //                 }
-
-    //                 @Override
-    //                 public Void visitMethod(MethodTree method, Void v) {
-    //                     List<VariableTree> parametersToInstrument
-    //                             = method.getParameters().stream()
-    //                             .filter(StringMatchPlugin.this::shouldInstrument)
-    //                             .collect(Collectors.toList());
-    //                     if(!parametersToInstrument.isEmpty()) {
-    //                         Collections.reverse(parametersToInstrument);
-    //                         parametersToInstrument.forEach(p -> addCheck(method, p, context));
-    //                     }
-    //                     return super.visitMethod(method, v);
-    //                 }
-    //             }, null);
-    //         }
-    //     });
-    
-    // }
-
     private boolean shouldInstrument(VariableTree parameter) {
         return parameter.getModifiers().getAnnotations()
                 .stream()
@@ -154,14 +116,14 @@ public class StringMatchPlugin extends ASTModificationPlugin{
 
     @Override
     protected TreeScanner<Void, List<Tree>> createVisitor(Context context) {
-        TreeScanner treeScanner = new TreeScanner<Void, Void>() {
+        TreeScanner treeScanner = new TreeScanner<Void, List<Tree>>() {
             @Override
-            public Void visitClass(ClassTree node, Void aVoid) {
+            public Void visitClass(ClassTree node, List<Tree> aVoid) {
                 return super.visitClass(node, aVoid);
             }
 
             @Override
-            public Void visitMethod(MethodTree method, Void v) {
+            public Void visitMethod(MethodTree method, List<Tree> v) {
                 List<VariableTree> parametersToInstrument
                         = method.getParameters().stream()
                         .filter(StringMatchPlugin.this::shouldInstrument)
