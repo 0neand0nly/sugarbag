@@ -30,7 +30,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
-public class StringMatchPlugin implements Plugin{
+public class StringMatchPlugin extends ASTModificationPlugin{
     public static final String NAME = "StringMatchPlugin";
 
     private static Set<String> TARGET_TYPES = new HashSet<>(Arrays.asList(
