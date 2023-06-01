@@ -30,7 +30,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
-public class StringMatchPlugin implements Plugin{
+public class StringMatchPlugin extends ASTModificationPlugin{
     public static final String NAME = "StringMatchPlugin";
 
     private static Set<String> TARGET_TYPES = new HashSet<>(Arrays.asList(
@@ -43,43 +43,43 @@ public class StringMatchPlugin implements Plugin{
         return NAME;
     }
 
-    @Override
-    public void init(JavacTask task, String... args) {
-        Context context = ((BasicJavacTask) task).getContext();
-        task.addTaskListener(new TaskListener() {
-            @Override
-            public void started(TaskEvent e) {
-            }
+    // @Override
+    // public void init(JavacTask task, String... args) {
+    //     Context context = ((BasicJavacTask) task).getContext();
+    //     task.addTaskListener(new TaskListener() {
+    //         @Override
+    //         public void started(TaskEvent e) {
+    //         }
 
-            @Override
-            public void finished(TaskEvent e) {
-                if (e.getKind() != TaskEvent.Kind.PARSE) {
-                    return;
-                }
+    //         @Override
+    //         public void finished(TaskEvent e) {
+    //             if (e.getKind() != TaskEvent.Kind.PARSE) {
+    //                 return;
+    //             }
                 
-                e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
-                    @Override
-                    public Void visitClass(ClassTree node, Void aVoid) {
-                        return super.visitClass(node, aVoid);
-                    }
+    //             e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
+    //                 @Override
+    //                 public Void visitClass(ClassTree node, Void aVoid) {
+    //                     return super.visitClass(node, aVoid);
+    //                 }
 
-                    @Override
-                    public Void visitMethod(MethodTree method, Void v) {
-                        List<VariableTree> parametersToInstrument
-                                = method.getParameters().stream()
-                                .filter(StringMatchPlugin.this::shouldInstrument)
-                                .collect(Collectors.toList());
-                        if(!parametersToInstrument.isEmpty()) {
-                            Collections.reverse(parametersToInstrument);
-                            parametersToInstrument.forEach(p -> addCheck(method, p, context));
-                        }
-                        return super.visitMethod(method, v);
-                    }
-                }, null);
-            }
-        });
+    //                 @Override
+    //                 public Void visitMethod(MethodTree method, Void v) {
+    //                     List<VariableTree> parametersToInstrument
+    //                             = method.getParameters().stream()
+    //                             .filter(StringMatchPlugin.this::shouldInstrument)
+    //                             .collect(Collectors.toList());
+    //                     if(!parametersToInstrument.isEmpty()) {
+    //                         Collections.reverse(parametersToInstrument);
+    //                         parametersToInstrument.forEach(p -> addCheck(method, p, context));
+    //                     }
+    //                     return super.visitMethod(method, v);
+    //                 }
+    //             }, null);
+    //         }
+    //     });
     
-    }
+    // }
 
     private boolean shouldInstrument(VariableTree parameter) {
         return parameter.getModifiers().getAnnotations()
@@ -150,5 +150,29 @@ public class StringMatchPlugin implements Plugin{
                                                 factory.Literal(errorMessagePrefix),
                                                 factory.Ident(parameterId)),
                                         factory.Literal(errorMessageSuffix))), null))));
+    }
+
+    @Override
+    protected TreeScanner<Void, List<Tree>> createVisitor(Context context) {
+        TreeScanner treeScanner = new TreeScanner<Void, Void>() {
+            @Override
+            public Void visitClass(ClassTree node, Void aVoid) {
+                return super.visitClass(node, aVoid);
+            }
+
+            @Override
+            public Void visitMethod(MethodTree method, Void v) {
+                List<VariableTree> parametersToInstrument
+                        = method.getParameters().stream()
+                        .filter(StringMatchPlugin.this::shouldInstrument)
+                        .collect(Collectors.toList());
+                if(!parametersToInstrument.isEmpty()) {
+                    Collections.reverse(parametersToInstrument);
+                    parametersToInstrument.forEach(p -> addCheck(method, p, context));
+                }
+                return super.visitMethod(method, v);
+            }
+        };
+        return treeScanner;
     }
 }
