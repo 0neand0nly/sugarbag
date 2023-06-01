@@ -1,13 +1,14 @@
 package edu.handong.csee.se.sugarbag.app;
 
-import java.util.List;
 import java.io.File;
 import java.util.ArrayList;
 
 public class PluginData {
+
+    private final String PACKAGE_NAME = "java/edu/handong/scee/se/sugarbg/oplug-ins";
  
-    private List<String> plugins = new ArrayList<>();
-    private List<String> selected = new ArrayList<>();
+    private String[] plugins;
+    private String[] selected;
 
     /**
      * Default constructor for PluginData
@@ -36,18 +37,21 @@ public class PluginData {
             File[] files = directory.listFiles();
             
             if (files != null) {
+                ArrayList<String> pluginList = new ArrayList<>();
+                
                 for (File file : files) {
                     if (file.isFile()) {
                         String fileName = file.getName();
 
                         // don't add test files
-                        if (fileName.contains("Text")) {
-                            break;
+                        if (!fileName.contains("Test")) {
+                            pluginList.add(fileName);
                         }
-
-                        plugins.add(fileName);
                     }
                 }
+
+                plugins = pluginList.toArray(new String[pluginList.size()]);
+
             }
         } else {
             System.out.println("Invalid directory path");
@@ -60,19 +64,25 @@ public class PluginData {
      * 
      * @param listOfSelectedPlugins list of user-selected plug-ins
      */
-    public void addSelected(List<String> listOfSelectedPlugins) {
+    public void addSelected(int[] listOfSelectedPlugins) {
 
-        selected.addAll(listOfSelectedPlugins);
+        ArrayList<String> selectedList = new ArrayList<>();
+
+        for (int i = 0; i < listOfSelectedPlugins.length; i++) {
+            selectedList.add(plugins[listOfSelectedPlugins[i]]);
+        }
+
+        selected = selectedList.toArray(new String[selectedList.size()]);
 
     }
 
-    public List<String> getPlugins() {
+    public String[] getPlugins() {
 
         return plugins;
         
     }
 
-    public List<String> getSelected() {
+    public String[] getSelected() {
      
         return selected;
 
