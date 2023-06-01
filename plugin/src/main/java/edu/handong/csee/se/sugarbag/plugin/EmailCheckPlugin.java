@@ -14,6 +14,7 @@ import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.TreeVisitor;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.Plugin;
@@ -30,56 +31,15 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
-public class EmailCheckPlugin implements Plugin{
+import edu.handong.csee.se.sugarbag.plugin.treescanner.ASTModificationScanner;
+
+public class EmailCheckPlugin extends ASTModificationPlugin{
     public static final String NAME = "EmailCheckPlugin";
     private static final String EMAIL_FORMAT = "^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$";
 
-    private static Set<String> TARGET_TYPES = new HashSet<>(Arrays.asList(
-        // Use only primitive types for simplicity
-        byte.class.getName(), short.class.getName(), char.class.getName(),
-        int.class.getName(), long.class.getName(), float.class.getName(), double.class.getName()));
-
-    @Override
+    // @Override
     public String getName() {
         return NAME;
-    }
-
-    @Override
-    public void init(JavacTask task, String... args) {
-        Context context = ((BasicJavacTask) task).getContext();
-        task.addTaskListener(new TaskListener() {
-            @Override
-            public void started(TaskEvent e) {
-            }
-
-            @Override
-            public void finished(TaskEvent e) {
-                if (e.getKind() != TaskEvent.Kind.PARSE) {
-                    return;
-                }
-                
-                e.getCompilationUnit().accept(new TreeScanner<Void, Void>() {
-                    @Override
-                    public Void visitClass(ClassTree node, Void aVoid) {
-                        return super.visitClass(node, aVoid);
-                    }
-
-                    @Override
-                    public Void visitMethod(MethodTree method, Void v) {
-                        List<VariableTree> parametersToInstrument
-                                = method.getParameters().stream()
-                                .filter(EmailCheckPlugin.this::shouldInstrument)
-                                .collect(Collectors.toList());
-                        if(!parametersToInstrument.isEmpty()) {
-                            Collections.reverse(parametersToInstrument);
-                            parametersToInstrument.forEach(p -> addCheck(method, p, context));
-                        }
-                        return super.visitMethod(method, v);
-                    }
-                }, null);
-            }
-        });
-    
     }
 
     private boolean shouldInstrument(VariableTree parameter) {
@@ -138,4 +98,49 @@ public class EmailCheckPlugin implements Plugin{
                                                 factory.Ident(parameterId)),
                                         factory.Literal(errorMessageSuffix))), null))));
     }
+
+    @Override
+    protected TreeScanner<Void, List<Tree>> createVisitor(Context context) {
+        // ASTModificationScanner scanner = new ASTModificationScanner(context, NAME) {
+        //     // @Override
+        //     public Void visitClass(ClassTree node, Void aVoid) {
+        //         return super.visitClass(node, aVoid);
+        //     }
+
+        //     @Override
+        //     public Void visitMethod(MethodTree method, Void v) {
+        //         List<VariableTree> parametersToInstrument
+        //                 = method.getParameters().stream()
+        //                 .filter(EmailCheckPlugin.this::shouldInstrument)
+        //                 .collect(Collectors.toList());
+        //         if(!parametersToInstrument.isEmpty()) {
+        //             Collections.reverse(parametersToInstrument);
+        //             parametersToInstrument.forEach(p -> addCheck(method, p, context));
+        //         }
+        //         return super.visitMethod(method, v);
+        //     }
+        // };
+
+        TreeScanner treeScanner = new TreeScanner<Void, Void>() {
+            @Override
+            public Void visitClass(ClassTree node, Void aVoid) {
+                return super.visitClass(node, aVoid);
+            }
+
+            @Override
+            public Void visitMethod(MethodTree method, Void v) {
+                List<VariableTree> parametersToInstrument
+                        = method.getParameters().stream()
+                        .filter(EmailCheckPlugin.this::shouldInstrument)
+                        .collect(Collectors.toList());
+                if(!parametersToInstrument.isEmpty()) {
+                    Collections.reverse(parametersToInstrument);
+                    parametersToInstrument.forEach(p -> addCheck(method, p, context));
+                }
+                return super.visitMethod(method, v);
+            }
+        };
+
+        return treeScanner;
+    }   
 }

@@ -1,9 +1,10 @@
-package edu.handong.csee.se.sugarbag.app.CLI;
+package edu.handong.csee.se.sugarbag.app;
 
 import java.util.Scanner;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.io.IOException;
 
 import org.apache.commons.cli.*;
 
@@ -12,17 +13,18 @@ import org.apache.commons.cli.*;
 public class CLI {
 
     private List<String> listOfPlugins = new ArrayList<>(Arrays.asList( "Postive", "Neutral", "Negative", "NotNull", "InRange", "Size", "Email", "Numeric", "StringFormat", "Immutable", "Reversed", "Debug" ));
-    private String workDirectory = "./src/main/java/edu/handong/csee/se/sugarbag/plugin/";
+    private String workDirectory = System.getProperty("user.dir") +  "\\src\\main\\java\\edu\\handong\\csee\\se\\sugarbag\\plugin\\";
+
 
 
     public static void main(String[] args) {
 
         CLI runner = new CLI();
-        runner.run();
+        runner.run(args);
 
     }
 
-    public void run() {
+    public void run(String[] args) {
 
         // Create the command line parser
         CommandLineParser parser = new DefaultParser();
@@ -33,8 +35,10 @@ public class CLI {
         options.addOption("f", "file", true, "Specify the input file");
         options.addOption("b", "bug", false, "Report bugs");
         options.addOption("m", "man", false, "Print the system manual");
+        options.addOption("l", "list", true, "List of plug-ins");
 
         String inputFile = "";
+        List<String> userPlugins = new ArrayList<>();
 
         try {
             // Parse the command line arguments
@@ -61,12 +65,16 @@ public class CLI {
 
             // Get the value of the file option
             inputFile = cmd.getOptionValue("f");
-            if (inputFile != null) {
-                // Process the input file
-                System.out.println("Input file: " + inputFile);
-            } else {
-                System.out.println("Input file not specified");
+            if (inputFile == null) {
+                System.err.println("Error no input files given");
             }
+
+            String[] pluginHolder = cmd.getOptionValues("l");
+            if (pluginHolder == null) {
+                System.err.println("Error no plug-ins selected");
+            }
+
+            userPlugins = Arrays.asList(pluginHolder);
         } catch (ParseException e) {
             System.err.println("Error parsing command line arguments: " + e.getMessage());
         }
@@ -74,27 +82,12 @@ public class CLI {
         // Start CLI for SugarBag
         System.out.println("********* SugarBag *********");
 
-        printListOfPlugins();
-
-        // get input of used plug-ins from the user.
-        Scanner scanner = new Scanner(System.in);
-        List<String> inputPluginList = new ArrayList<>();
-
-        String input = "";
-        while (!input.equalsIgnoreCase("q") || !input.equalsIgnoreCase("quit")) {
-            System.out.print("Enter a name of plug-in used (or 'q' to quit): ");
-            input = scanner.nextLine();
-
-            if (!input.equalsIgnoreCase("q") || !input.equalsIgnoreCase("quit")) {
-                inputPluginList.add(input);
-            }
-        }
-        scanner.close();
-
         // concat working directory path to the list of plugins selected
-        for (int idx = 0; idx < inputPluginList.size(); idx++) {
-            String temp = getWorkDirectory() + inputPluginList.get(idx) + ".java";
-        }
+        // for (int i = 0; i < userPlugins.size(); i++) {
+        //     String concatHolder = getWorkDirectory() + userPlugins.get(i) + ".java";
+        //     userPlugins.set(i, concatHolder);
+        //     printString(userPlugins.get(i));
+        // }
 
         // compile process of given files and plug-ins
         List<String> commandArguments = new ArrayList<>();
@@ -109,12 +102,19 @@ public class CLI {
         commandArguments.add("jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED");
         commandArguments.add("--add-exports");
         commandArguments.add("jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED");
-        commandArguments.add("./src/main/java/edu/handong/csee/se/sugarbag/plugin/TestPlugin.java");
+        commandArguments.add(workDirectory + "TestPlugin.java");
+        commandArguments.add(workDirectory + "ASTModificationPlugin.java");
 
-        for (String inputPlugin : inputPluginList) {
-            commandArguments.add(inputPlugin);
+        for (String userPlugin : userPlugins) {
+            commandArguments.add(workDirectory + userPlugin + ".java");
+            commandArguments.add(workDirectory + userPlugin + "CheckPlugin.java");
+            // commandArguments.add(workDirectory + userPlugin + "Test.java");
         }
 
+        for (int i = 0; i < commandArguments.size(); i++) {
+            printString(commandArguments.get(i));
+        }
+        
         // 1. compile selected plugins
         ProcessBuilder pluginCompiler = new ProcessBuilder(commandArguments.toArray(new String[0]));
 
@@ -122,8 +122,19 @@ public class CLI {
         ProcessBuilder sourceCompiler = new ProcessBuilder("javac", "-d", "bin/main", "-cp", "bin/main", "-Xplugin:TestPlugin", inputFile);
 
         // 3. execute the source file with plug-ins
-        Process processRunner = sourceCompiler.start();
-        processRunner.waitFor();
+        Process processRunner = null;
+
+        try {
+            processRunner = sourceCompiler.start();
+        } catch (IOException e) {
+            System.err.println("Error running the processRunner: " + e.getMessage());
+        }
+
+        try {
+            processRunner.waitFor();
+        } catch (InterruptedException e) {
+            System.err.println("Error waiting for the end of processRunner: " + e.getMessage());
+        }
 
     }
 
@@ -139,14 +150,10 @@ public class CLI {
 
     }
 
-    public void printListOfPlugins() {
+    public void printString(String str) {
 
-        List<String> plugins = getListOfPlugins();
+        System.out.println(str);
 
-        for (int i = 0; i < plugins.size(); i++) {
-            System.out.println("\t" + (i+1) + ") " + plugins.get(i));
-        }
-            
     }
 
     public void printAdminInfo() {
