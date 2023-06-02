@@ -1,8 +1,9 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
-public class TestIn {
+public class InRangeTest {
     public static void main(String[] args) {
-        TestIn testIn = new TestIn();
+        System.out.println("Hello World!");
+        InRangeTest testIn = new InRangeTest();
         testIn.service(10);
         testIn.service(1000);
     }

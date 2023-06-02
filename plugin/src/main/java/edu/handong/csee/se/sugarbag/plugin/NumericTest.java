@@ -14,7 +14,7 @@ public class NumericTest {
         unitTest("abc");
     }
 
-    private void unitTest(@Numeric(numericType = "double") String num) {
+    private void unitTest(@Numeric(max = 0, min = 9, numericType = "double") String num) {
         System.out.println("This is what we want: " + num);
     }
 }

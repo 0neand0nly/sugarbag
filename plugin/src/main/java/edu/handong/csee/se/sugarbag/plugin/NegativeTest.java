@@ -1,8 +1,9 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
-public class TestNeg {
+public class NegativeTest {
     public static void main(String[] args) {
-        TestNeg testNeg = new TestNeg();
+        System.out.println("Hello World!");
+        NegativeTest testNeg = new NegativeTest();
         testNeg.service(-1);
         testNeg.service(1);
     }
