@@ -17,9 +17,9 @@ Novice developers have a lot of difficulties in development. One of them would b
 ------
 
 ### What is the Purpose of development?
-1. Help developers debug easier and faster
+1. Help developers debug easier and faster<br>
 Our plug-in can help developers debug by supporting parameter checking, tracing variables, etc. 
-2. Free developers from chores
+2. Free developers from chores<br>
 Our plug-in can free developers from chores by defining useful annotations like @Getter and @Setter that prevent developers from writing getter and setter methods with their own hands.
 
 ---
