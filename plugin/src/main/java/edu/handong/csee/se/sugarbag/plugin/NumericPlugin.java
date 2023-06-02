@@ -30,13 +30,8 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
-/**
- * A {@link JavaCompiler javac} plugin which inserts {@code >= min && <= max} checks into resulting {@code *.class} files
- * for string method parameters marked by {@link Numeric}
- */
-public class NumericJavacPlugin extends ASTModificationPlugin {
-
-    public static final String NAME = "NumericJavacPlugin";
+public class NumericPlugin extends ASTModificationPlugin {
+    public static final String NAME = "NumericPlugin";
 
     // @Override
     public String getName() {
@@ -188,7 +183,7 @@ public class NumericJavacPlugin extends ASTModificationPlugin {
             public Void visitMethod(MethodTree method, List<Tree> v) {
                 List<VariableTree> parametersToInstrument
                         = method.getParameters().stream()
-                        .filter(NumericJavacPlugin.this::shouldInstrument)
+                        .filter(NumericPlugin.this::shouldInstrument)
                         .collect(Collectors.toList());
                 if(!parametersToInstrument.isEmpty()) {
                     Collections.reverse(parametersToInstrument);

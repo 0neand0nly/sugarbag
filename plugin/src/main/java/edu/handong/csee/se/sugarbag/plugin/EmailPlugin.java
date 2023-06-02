@@ -33,8 +33,8 @@ import com.sun.tools.javac.util.Names;
 
 import edu.handong.csee.se.sugarbag.plugin.treescanner.ASTModificationScanner;
 
-public class EmailCheckPlugin extends ASTModificationPlugin{
-    public static final String NAME = "EmailCheckPlugin";
+public class EmailPlugin extends ASTModificationPlugin{
+    public static final String NAME = "EmailPlugin";
     private static final String EMAIL_FORMAT = "^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$";
 
     // @Override
@@ -56,37 +56,37 @@ public class EmailCheckPlugin extends ASTModificationPlugin{
     private static JCTree.JCIf createCheck(VariableTree parameter, Context context) {
         TreeMaker factory = TreeMaker.instance(context);
         Names symbolsTable = Names.instance(context);
-        
+
         return factory.at(((JCTree) parameter).pos)
                 .If(createIfCondition(factory, symbolsTable, parameter),
-                    createIfBlock(factory, symbolsTable, parameter),
-                    null);
+                        createIfBlock(factory, symbolsTable, parameter),
+                        null);
     }
 
     private static JCTree.JCExpression createIfCondition(TreeMaker factory, Names symbolsTable, VariableTree parameter) {
         Name parameterId = symbolsTable.fromString(parameter.getName().toString());
-                
+
         // Create unary condition for checking if parameter does not match format
         JCLiteral formatLiteral = factory.Literal(TypeTag.CLASS, EMAIL_FORMAT);
 
         JCTree.JCMethodInvocation formatCheck = factory.Apply(
-            com.sun.tools.javac.util.List.nil(),
-            factory.Select(factory.Ident(parameterId), symbolsTable.fromString("matches")),
-            com.sun.tools.javac.util.List.of(formatLiteral)
+                com.sun.tools.javac.util.List.nil(),
+                factory.Select(factory.Ident(parameterId), symbolsTable.fromString("matches")),
+                com.sun.tools.javac.util.List.of(formatLiteral)
         );
-        
+
         return factory.Unary(JCTree.Tag.NOT, formatCheck);
     }
 
     private static JCTree.JCBlock createIfBlock (TreeMaker factory, Names symbolsTable, VariableTree parameter) {
         String parameterName = parameter.getName().toString();
         Name parameterId = symbolsTable.fromString(parameterName);
-    
+
         String errorMessagePrefix = String.format(
                 "Argument '%s' does not match format '",
                 parameterName);
         String errorMessageSuffix = "'";
-    
+
         return factory.Block(0, com.sun.tools.javac.util.List.of(
                 factory.Throw(
                         factory.NewClass(null, null,
@@ -112,7 +112,7 @@ public class EmailCheckPlugin extends ASTModificationPlugin{
             public Void visitMethod(MethodTree method, List<Tree> v) {
                 List<VariableTree> parametersToInstrument
                         = method.getParameters().stream()
-                        .filter(EmailCheckPlugin.this::shouldInstrument)
+                        .filter(EmailPlugin.this::shouldInstrument)
                         .collect(Collectors.toList());
                 if(!parametersToInstrument.isEmpty()) {
                     Collections.reverse(parametersToInstrument);
@@ -123,5 +123,5 @@ public class EmailCheckPlugin extends ASTModificationPlugin{
         };
 
         return treeScanner;
-    }   
+    }
 }
