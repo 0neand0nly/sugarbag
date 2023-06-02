@@ -3,6 +3,25 @@
 ## Welcome to **SugarBag**
 ## The shorter, faster-Javac annotation extra pack for syntactic sugar!
 
+## Contents
+#### 1. What is Sugarbag?
+#### 2. What is the Purpose of development?
+#### 3. Getting Started
+#### 4. Contributing Changes
+
+------
+
+### What is Sugarbag?
+Novice developers have a lot of difficulties in development. One of them would be allowing unnecessary overhead due to errors in syntax or lack of understanding of algorithms. Sugarbag is javac plug-in for providing help to the developers.
+
+------
+
+### What is the Purpose of development?
+1. Help developers debug easier and faster
+Our plug-in can help developers debug by supporting parameter checking, tracing variables, etc. 
+2. Free developers from chores
+Our plug-in can free developers from chores by defining useful annotations like @Getter and @Setter that prevent developers from writing getter and setter methods with their own hands.
+
 ---
 
 ### Getting Started
@@ -11,14 +30,12 @@
 * gradle 8.1.1
 
 #### Build
-1. Execute **build.sh** to start building the project.
+* Execute **SugarBag.java** to start building the project.
 ```
-$ ./build.sh
+$ cd application/
+$ gradle run
 
 ```
-2. 
-
-#### Adding Plug-ins (Optional)
 
 
 ---
