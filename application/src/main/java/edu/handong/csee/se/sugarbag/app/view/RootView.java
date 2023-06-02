@@ -1,29 +1,32 @@
 package edu.handong.csee.se.sugarbag.app.view;
 
+import java.util.Set;
+
 public class RootView extends View {
 
-    @Override
-    public void print() {
+    public RootView() {
+        children.add(new PluginListView());
+        children.add(new ManualView());
+        children.add(new ReportView());
+        
+        kind = ViewKind.ROOT;
+    }
 
+    @Override
+    public void print(String[] plugins, Set<String> selected) {
+        System.out.println();
         System.out.println("MENU");
         System.out.println("1. Show Plugin List");
         System.out.println("2. Show System Manual");
         System.out.println("3. Report Bugs");
-        System.out.println("0. Quit Program");
-        System.out.print(">>>");
-
-    }
-    
-    public View nextView(int index) {
-
-        return children.get(index);
-
+        System.out.println("back: Go back to previous page, " 
+                           + "exit: Exit the program");
+        System.out.print(">>> ");
     }
 
-    public ActionFactory getActionFactory() {
-
-        return actionFactory;
-
+    @Override
+    public View previousView() {
+        return this;
     }
     
 }

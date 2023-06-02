@@ -1,10 +1,17 @@
 package edu.handong.csee.se.sugarbag.app.view;
 
-public class ManualView extends View{
-    
-    @Override
-    public void print() {
+import java.util.Set;
 
+public class ManualView extends LeafView {
+    
+    public ManualView() {
+        kind = ViewKind.MANUAL;
+    }
+
+    @Override
+    public void print(String[] plugins, Set<String> selected) {
+
+        System.out.println();
         System.out.println(
             "SUGARBAG"
         );
@@ -127,20 +134,15 @@ public class ManualView extends View{
         System.out.println(
             "[May 29, 2023]"
         );
-        System.out.println();
+        System.out.println("back: Go back to previous page, exit: Exit the program");
+        System.out.print(">>> ");
 
     }
     
-    public View previousView(int index) {
+    @Override
+    public View previousView() {
 
-        return children.get(index);
-
-    }
-
-    public ActionFactory getActionFactory() {
-
-        return actionFactory;
+        return new RootView();
 
     }
-
 }

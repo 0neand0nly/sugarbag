@@ -1,40 +1,37 @@
 package edu.handong.csee.se.sugarbag.app.view;
 
-public class PluginListView extends DataView{
+import java.util.Set;
+
+public class PluginListView extends View {
     
+    public PluginListView() {
+        children.add(new ClasspathView());
+       
+        kind = ViewKind.PLUGIN_LIST;
+    }
+
     @Override
-    public void print(String[] plugins, String[] selected) {
+    public void print(String[] plugins, Set<String> selected) {
+        System.out.println();
+        System.out.println("Select plugins to applicate.");
 
         for (int i = 0; i < plugins.length; i++) {
-            boolean flag = false;
+            System.out.printf("%d %s", i + 1, plugins[i]);
 
-            for (int j = 0; j < selected.length; j++) {
-                if (plugins[i] == selected[j]) {
-                    System.out.print("[X]");
-                    flag = true;
-                    break;
-                }
+            if (selected.contains(plugins[i])) {
+                System.out.println("[V]");
+            } else {
+                System.out.println("[ ]");
             }
-
-            if (!flag) {
-                System.out.print("[ ]");
-            }
-
-            System.out.println(" " + i + ". " + plugins[i]);
         }
 
+        System.out.println("back: Go back to previous page, exit: Exit the program");
+        System.out.println("done: Move to next stage");
+        System.out.print("Insert plugin numbers to select >>> ");
     }
     
-    public View previousView(int index) {
-
-        return children.get(index);
-
+    @Override
+    public View previousView() {
+        return new RootView();
     }
-
-    public ActionFactory getActionFactory() {
-
-        return actionFactory;
-
-    }
-
 }
