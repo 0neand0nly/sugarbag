@@ -2,14 +2,19 @@ package edu.handong.csee.se.sugarbag.app;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PluginData {
 
-    private final String PACKAGE_NAME = "java/edu/handong/scee/se/sugarbg/oplug-ins";
- 
+    private final String PLUGIN_CLASSPATH;
+    private final int EXTENSION_LEN = 5;
+    
     private String[] plugins;
-    private String[] selected;
-
+    private Set<String> selected;
+    private String userClasspath;
+    private String inputJavaFile;
+   
     /**
      * Default constructor for PluginData
      * loads all <code>plugins</code> right away
@@ -18,8 +23,14 @@ public class PluginData {
      */
     public PluginData(String pathname) {
 
-        loadPlugins(pathname);
-    
+        //loadPlugins(pathname);
+        PLUGIN_CLASSPATH = pathname;
+        plugins = new String[] { "PositivePlugin", "NegativePlugin", 
+                                 "NeutralPlugin", "InRangePlugin", 
+                                 "StringFormatPlugin", "EmailPlugin", 
+                                 "DebugPlugin" };
+        selected = new HashSet<>();
+        
     }
 
     /**
@@ -62,17 +73,25 @@ public class PluginData {
     /**
      * Update the list of selected plugins, <code>listOfSelectedPlugins</code>
      * 
-     * @param listOfSelectedPlugins list of user-selected plug-ins
+     * @param listOfSelectedPlugins list of user-selected plugins
      */
     public void addSelected(int[] listOfSelectedPlugins) {
 
-        ArrayList<String> selectedList = new ArrayList<>();
-
         for (int i = 0; i < listOfSelectedPlugins.length; i++) {
-            selectedList.add(plugins[listOfSelectedPlugins[i]]);
+            selected.add(plugins[listOfSelectedPlugins[i] - 1]);
         }
 
-        selected = selectedList.toArray(new String[selectedList.size()]);
+    }
+
+    public void setUserClasspath(String userClasspath) {
+
+        this.userClasspath = userClasspath;
+
+    }
+
+    public void setInputJavaFile(String inputJavaFile) {
+        
+        this.inputJavaFile = inputJavaFile;
 
     }
 
@@ -82,10 +101,32 @@ public class PluginData {
         
     }
 
-    public String[] getSelected() {
+    public Set<String> getSelected() {
      
         return selected;
 
     }
 
+    public String getPluginClasspath() {
+        
+        return PLUGIN_CLASSPATH; 
+    }
+
+    public String getUserClasspath() {
+        
+        return userClasspath;
+
+    }
+
+    public String getInputJavaFile() {
+        
+        return inputJavaFile;
+
+    }
+
+    public String getInputClassFile() {
+        return inputJavaFile.substring(0, 
+                                       inputJavaFile.length() - EXTENSION_LEN);
+
+    }
 }
