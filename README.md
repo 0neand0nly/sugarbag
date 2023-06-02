@@ -50,7 +50,7 @@ $ jar -cf plugin.jar edu/
 ```
 $ jar uf plugin.jar META-INF/services/com.sun.source.util.Plugin
 ```
-#### plugin.jar file created
+##### plugin.jar file created
 * Execution of the program
 ```
 $ gradle run
