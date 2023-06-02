@@ -7,7 +7,7 @@
  */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
+    //id 'java'
     id 'application'
 }
 
@@ -23,14 +23,16 @@ dependencies {
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:31.1-jre'
 
-    // https://mvnrepository.com/artifact/commons-cli/commons-cli
-    implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
-
+    implementation files('lib/edu/handong/csee/se/sugarbag/plugin/plugin.jar')
 }
 
 application {
     // Define the main class for the application.
-    mainClass = 'edu.handong.csee.se.sugarbag.app.CLI'
+    mainClassName = 'edu.handong.csee.se.sugarbag.app.SugarBag'
+}
+
+run {
+    standardInput = System.in
 }
 
 tasks.named('test') {
