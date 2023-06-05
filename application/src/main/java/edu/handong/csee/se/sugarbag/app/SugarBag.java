@@ -21,7 +21,7 @@ public class SugarBag {
      * Initializes the <code>data</code>, <code>view</code>,
      * and <code>factory</code> of this instance.
      */
-    public SugarBag(String pathname) {
+    public SugarBag() {
         data = new PluginData();
         view = new RootView();
         factory = new ActionFactory();
@@ -226,14 +226,11 @@ public class SugarBag {
 
 
     public static void main(String[] args) {
-        final String PLUGIN_PATHNAME = "../../../lib/edu/handong/csee/se/sugarbag/plugin/plugin.jar";
-       
-        SugarBag sugarBag = new SugarBag(PLUGIN_PATHNAME);
+        SugarBag sugarBag = new SugarBag();
 
         sugarBag.show();
 
         try (Scanner scanner = new Scanner(System.in)) {      
-            //System.out.println(System.in.read());      
             do {
                 scanner.hasNextLine();
             } while (sugarBag.process(scanner.nextLine()));
