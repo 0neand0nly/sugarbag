@@ -36,7 +36,8 @@ public abstract class View {
      * @return Returns specified <code>View</code> via index
      */
     public View nextView(int index) {
-        return children.get(index);
+        return index >= 0 && index < children.size() ? children.get(index) 
+                                                     : this;
     };
 
     /**

@@ -4,6 +4,6 @@ public abstract class LeafView extends View {
     
     @Override
     public View nextView(int index) {
-        return null;
+        return this;
     }
 }

@@ -5,7 +5,7 @@ import java.util.Set;
 public class PluginListView extends View {
     
     public PluginListView() {
-        children.add(new ClasspathView());
+        children.add(new InputFileView());
        
         kind = ViewKind.PLUGIN_LIST;
     }

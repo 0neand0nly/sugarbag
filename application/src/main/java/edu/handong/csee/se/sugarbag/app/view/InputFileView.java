@@ -20,6 +20,6 @@ public class InputFileView extends View {
 
     @Override
     public View previousView() {
-        return new ClasspathView();
+        return new PluginListView();
     }
 }

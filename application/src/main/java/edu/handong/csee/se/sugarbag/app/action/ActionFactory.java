@@ -28,14 +28,11 @@ public class ActionFactory {
         } else if (kind == ViewKind.PLUGIN_LIST 
                    && arg.toString().equals("done")) {
             return new GoToAction(sugarBag, 1);
-        } else if ((kind != ViewKind.CLASSPATH && kind != ViewKind.INPUT_FILE) 
-                   && arg instanceof Integer) {
+        } else if (kind != ViewKind.INPUT_FILE && arg instanceof Integer) {
             return new GoToAction(sugarBag, arg);
         } else if (kind == ViewKind.EXECUTION 
                    && arg.toString().equals("execute")) {
             return new ExecuteProgramAction(sugarBag);
-        } else if (kind == ViewKind.CLASSPATH && arg instanceof String) {
-            return new SetClasspathAction(sugarBag, arg);
         } else if (kind == ViewKind.INPUT_FILE && arg instanceof String) {
             return new SetInputFileAction(sugarBag, arg);
         } else {
