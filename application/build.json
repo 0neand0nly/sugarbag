@@ -1,0 +1,7 @@
+{
+    "mainClass" : "edu.handong.csee.se.sugarbag.app.PositiveTest", 
+    "plugin" : "lib/edu/handong/csee/se/sugarbag/plugin/plugin.jar",
+    "dependencies" : ["org.apache.commons/commons-csv/1.9.0"],
+    "classFileDir" : "bin/main",
+    "dependencyDir" : "/.gradle/caches/modules-2/files-2.1"
+}
