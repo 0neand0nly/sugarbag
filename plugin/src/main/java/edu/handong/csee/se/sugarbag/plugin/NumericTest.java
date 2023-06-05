@@ -1,5 +1,7 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
+import edu.handong.csee.se.sugarbag.plugin.annotations.Numeric;
+
 public class NumericTest {
     public static void main(String[] args) {
         NumericTest test = new NumericTest();

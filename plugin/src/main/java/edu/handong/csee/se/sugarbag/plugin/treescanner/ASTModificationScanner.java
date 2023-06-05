@@ -19,7 +19,6 @@ import com.sun.tools.javac.util.Names;
 /**
  * Scanner that modifies AST based on the annotation.
  */
-@SuppressWarnings("unchecked")
 public abstract class ASTModificationScanner 
         extends TreeScanner<Void, List<Tree>> {    
     protected TreeMaker treeMaker;

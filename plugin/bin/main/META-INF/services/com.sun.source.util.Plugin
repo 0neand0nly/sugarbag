@@ -1,1 +1,8 @@
+edu.handong.csee.se.sugarbag.plugin.PositivePlugin
+edu.handong.csee.se.sugarbag.plugin.NegativePlugin
+edu.handong.csee.se.sugarbag.plugin.NeutralPlugin
+edu.handong.csee.se.sugarbag.plugin.InRangePlugin
+edu.handong.csee.se.sugarbag.plugin.NumericPlugin
+edu.handong.csee.se.sugarbag.plugin.StringMatchPlugin
+edu.handong.csee.se.sugarbag.plugin.EmailPlugin
 edu.handong.csee.se.sugarbag.plugin.DebugPlugin

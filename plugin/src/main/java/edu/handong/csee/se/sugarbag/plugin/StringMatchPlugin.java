@@ -30,6 +30,8 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
+import edu.handong.csee.se.sugarbag.plugin.annotations.StringMatch;
+
 public class StringMatchPlugin extends ASTModificationPlugin{
     public static final String NAME = "StringMatchPlugin";
 

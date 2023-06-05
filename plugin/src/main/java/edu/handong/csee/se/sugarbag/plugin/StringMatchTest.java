@@ -1,5 +1,7 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
+import edu.handong.csee.se.sugarbag.plugin.annotations.StringMatch;
+
 public class StringMatchTest {
     public static void main(String[] args) {
         StringMatchTest stringMatchTest = new StringMatchTest();
