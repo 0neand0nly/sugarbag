@@ -36,7 +36,7 @@ You would need three files for running the program.
 - application.jar
 - build.json
 
-## Creating plugin.jar
+### Creating plugin.jar
 * Start at the **plugin/** directory. 
 ```
 ~:$ cd plugin
@@ -74,13 +74,6 @@ You can write build.json to configure your environment paths.
 ```
 ~workspace:$ java -jar application.jar
 ```
----
-
-### Related Projects
-- [Creating a Java Compiler Plugin - baeldung](https://www.baeldung.com/java-build-compiler-plugin)
-    - [Github](https://github.com/eugenp/tutorials/tree/master/core-java-modules/core-java-sun)
-
----
 
 ## 5. Contributing Changes
 1. Open an issue of your proposal to our [Issues](https://github.com/hahyun8587/sugarbag/issues) tab.
@@ -89,3 +82,11 @@ You can write build.json to configure your environment paths.
 4. Follow the style of which is already present in the code.
 5. Create matching unit test cases for your changes.
 6. Submit a pull request to the [Pull requests](https://github.com/hahyun8587/sugarbag/pulls) tab.
+
+---
+
+### Related Projects
+- [Creating a Java Compiler Plugin - baeldung](https://www.baeldung.com/java-build-compiler-plugin)
+    - [Github](https://github.com/eugenp/tutorials/tree/master/core-java-modules/core-java-sun)
+
+---
