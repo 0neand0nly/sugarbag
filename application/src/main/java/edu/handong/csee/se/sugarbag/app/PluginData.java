@@ -81,10 +81,13 @@ public class PluginData {
      * 
      * @param listOfSelectedPlugins list of user-selected plugins
      */
-    public void addSelected(int[] listOfSelectedPlugins) {
+    public void addSelected(int[] selectedNumbers) {
 
-        for (int i = 0; i < listOfSelectedPlugins.length; i++) {
-            selected.add(plugins[listOfSelectedPlugins[i] - 1]);
+        for (int i = 0; i < selectedNumbers.length; i++) {
+            if (selectedNumbers[i] > 0 
+                    && selectedNumbers[i] <= plugins.length) {
+                selected.add(plugins[selectedNumbers[i] - 1]);
+            }
         }
 
     }
