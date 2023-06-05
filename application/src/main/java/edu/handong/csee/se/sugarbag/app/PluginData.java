@@ -1,72 +1,78 @@
 package edu.handong.csee.se.sugarbag.app;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PluginData {
+import org.json.JSONObject;
 
-    private final String PLUGIN_CLASSPATH;
-    private final int EXTENSION_LEN = 5;
+public class PluginData {
+    private final String CONFIG_FILE = "build.json";
     
     private String[] plugins;
     private Set<String> selected;
+    private String mainClass;
+    private String pluginClasspath;
     private String userClasspath;
     private String inputJavaFile;
+    private String classFileDir;
    
     /**
      * Default constructor for PluginData
      * loads all <code>plugins</code> right away
-     * 
-     * @param pathname path to plugin/
      */
-    public PluginData(String pathname) {
-
-        //loadPlugins(pathname);
-        PLUGIN_CLASSPATH = pathname;
+    public PluginData() {
+    
         plugins = new String[] { "PositivePlugin", "NegativePlugin", 
                                  "NeutralPlugin", "InRangePlugin", 
                                  "StringFormatPlugin", "EmailPlugin", 
                                  "DebugPlugin" };
         selected = new HashSet<>();
-        
+
     }
 
     /**
-     * traverses directory of plugins to obtain plugin names
-     * 
-     * @param pathname path to plugin/
+     * Configures <code>mainClass</code>, <code>pluginClasspath</code>, 
+     * and <code>userClasspath</code> of this instance.
+     * @throws IOException
      */
-    public void loadPlugins(String pathname) {
+    public void configure() throws IOException {
+        
+        JSONObject jo;
+        String dependencyDir;
+        String js = "";
 
-        File directory = new File(pathname);
+        try (BufferedReader reader = 
+                new BufferedReader(new FileReader(CONFIG_FILE))) {
+            String line;
 
-        // Check if the specified directory exists
-        if (directory.exists() && directory.isDirectory()) {
-            // Get all file names in the directory
-            File[] files = directory.listFiles();
-            
-            if (files != null) {
-                ArrayList<String> pluginList = new ArrayList<>();
-                
-                for (File file : files) {
-                    if (file.isFile()) {
-                        String fileName = file.getName();
-
-                        // don't add test files
-                        if (!fileName.contains("Test")) {
-                            pluginList.add(fileName);
-                        }
-                    }
-                }
-
-                plugins = pluginList.toArray(new String[pluginList.size()]);
-
+            while ((line = reader.readLine()) != null) {
+                js += line;
             }
-        } else {
-            System.out.println("Invalid directory path");
         }
+
+        jo = new JSONObject(js);
+        mainClass = jo.getString("mainClass");
+        pluginClasspath = jo.getString("plugin");
+        dependencyDir = System.getProperty("user.home") 
+                        + jo.getString("dependencyDir");
+        userClasspath = "";
+        
+        for (Object o : jo.getJSONArray("dependencies")) {
+            String dependencyPackageDir = dependencyDir + "/" + (String) o;
+            String[] tempDirnames = new File(dependencyPackageDir).list();
+
+            for (String tempDirname : tempDirnames) {
+                userClasspath += dependencyPackageDir + "/" + tempDirname 
+                                 + "/*" + File.pathSeparator;
+            }
+        }
+
+        classFileDir = jo.getString("classFileDir");
 
     }
 
@@ -107,9 +113,15 @@ public class PluginData {
 
     }
 
+    public String getMainClass() {
+        
+        return mainClass;
+
+    }
+
     public String getPluginClasspath() {
         
-        return PLUGIN_CLASSPATH; 
+        return pluginClasspath; 
     }
 
     public String getUserClasspath() {
@@ -124,9 +136,9 @@ public class PluginData {
 
     }
 
-    public String getInputClassFile() {
-        return inputJavaFile.substring(0, 
-                                       inputJavaFile.length() - EXTENSION_LEN);
+    public String getClassFileDir() {
+        
+        return classFileDir;
 
     }
 }
