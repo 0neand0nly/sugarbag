@@ -3,7 +3,7 @@
 ## Welcome to **SugarBag**
 ## The shorter, faster-Javac annotation extra pack for syntactic sugar!
 
-## Contents
+## 0. Contents
 #### 1. What is Sugarbag?
 #### 2. What is the Purpose of development?
 #### 3. Getting Started
