@@ -23,7 +23,7 @@ import com.sun.tools.javac.util.ListBuffer;
 import edu.handong.csee.se.sugarbag.plugin.utils.AnnotationTargetFinder;
 
 public class DebugScanner extends ASTModificationScanner {
-	private final int NUM_DEBUG_STATEMENT = 2;
+	private final int NUM_DEBUG_STATEMENT = 3;
 
 	private IdentifierValueCheckScanner scanner = 
 			new IdentifierValueCheckScanner();
@@ -106,6 +106,7 @@ public class DebugScanner extends ASTModificationScanner {
 			}
 
 			if (kind == Tree.Kind.VARIABLE 
+					&& targets.contains(statement) 
 					&& ((VariableTree) statement).getInitializer() != null) {
 				statements.addAll(k, makeDebugStatements(
 						statement, (VariableTree) statement));
