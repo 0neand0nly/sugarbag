@@ -7,16 +7,17 @@
 #### 1. What is Sugarbag?
 #### 2. What is the Purpose of development?
 #### 3. Getting Started
-#### 4. Contributing Changes
+#### 4. Running Program
+#### 5. Contributing Changes
 
 ------
 
-### What is Sugarbag?
+## 1. What is Sugarbag?
 Novice developers have a lot of difficulties in development. One of them would be allowing unnecessary overhead due to errors in syntax or lack of understanding of algorithms. Sugarbag is javac plug-in for providing help to the developers.
 
 ------
 
-### What is the Purpose of development?
+## 2. What is the Purpose of development?
 1. Help developers debug easier and faster<br>
 Our plug-in can help developers debug by supporting parameter checking, tracing variables, etc. 
 2. Free developers from chores<br>
@@ -24,7 +25,7 @@ Our plug-in can free developers from chores by defining useful annotations like 
 
 ---
 
-## Getting Started
+## 3. Getting Started
 ### Setup
 * jdk-11.X.X
 * gradle 8.1.1
@@ -35,7 +36,7 @@ You would need three files for running the program.
 - application.jar
 - build.json
 
-### Creating plugin.jar
+## Creating plugin.jar
 * Start at the **plugin/** directory. 
 ```
 ~:$ cd plugin
@@ -57,7 +58,7 @@ You would need three files for running the program.
 ~:$ cd application
 ~/application:$ gradle jar
 ```
-the output jar will be located at <code>~/build/libs</code>
+the output jar will be located at <code>~/application/build/libs</code>
 
 ### Writing build.json
 You can write build.json to configure your environment paths.
@@ -67,7 +68,7 @@ You can write build.json to configure your environment paths.
 - classFileDir: <code>.class</code> file output directory
 - dependencyDir: dependency directory for searching the dependencies
 
-## Running
+## 4. Running
 1. Place <code>application.jar</code> at your root directory.
 2. Place <code>plugin.jar</code> directory where you setted in <code>build.json</code>.
 ```
@@ -81,7 +82,7 @@ You can write build.json to configure your environment paths.
 
 ---
 
-### Contributing Changes
+## 5. Contributing Changes
 1. Open an issue of your proposal to our [Issues](https://github.com/hahyun8587/sugarbag/issues) tab.
 2. Make sure duplicate patches aren't listed.
 3. Fork the repository to apply and test your code.
