@@ -1,4 +1,4 @@
-# sugarbag
+# SugarBag
 
 ## Welcome to **SugarBag**
 ## The shorter, faster-Javac annotation extra pack for syntactic sugar!
@@ -37,19 +37,15 @@ $ cd plugin/
 ```
 * Compile **plugin** necessary files.
 ```
-$ javac -d bin/main --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED /src/main/java/edu/handong/csee/se/sugarbag/plugin/*.java /src/main/java/edu/handong/csee/se/sugarbag/plugin/treescanner/*.java /src/main/java/edu/handong/csee/se/sugarbag/plugin/annotations/*.java /src/main/java/edu/handong/csee/se/sugarbag/plugin/utils/*.java
+$ javac -d bin/main --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED src/main/java/edu/handong/csee/se/sugarbag/plugin/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/treescanner/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/annotations/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/utils/*.java
 ```
-* Make the **jar** file.
+* Create the **jar** file.
     * In the **plugin/bin/main/** directory.
 ```
 $ cd bin/main/
-$ jar -cf plugin.jar edu/
+$ jar -cf plugin.jar edu META-INF
 ```
-* Include **META-INF** contents.
-    * In the **plugin/bin/main/** directory.
-```
-$ jar uf plugin.jar META-INF/services/com.sun.source.util.Plugin
-```
+
 ##### plugin.jar file created
 * Execution of the program
 ```
