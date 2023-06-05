@@ -29,7 +29,7 @@ public class PluginData {
     
         plugins = new String[] { "PositivePlugin", "NegativePlugin", 
                                  "NeutralPlugin", "InRangePlugin", 
-                                 "NumericPlugin", "StringFormatPlugin", 
+                                 "NumericPlugin", "StringMatchPlugin", 
                                  "EmailPlugin", "DebugPlugin" };
         selected = new HashSet<>();
 
