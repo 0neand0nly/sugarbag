@@ -24,34 +24,55 @@ Our plug-in can free developers from chores by defining useful annotations like 
 
 ---
 
-### Getting Started
-#### Setup
+## Getting Started
+### Setup
 * jdk-11.X.X
 * gradle 8.1.1
 
-#### Build
-##### In case you need the plugin.jar file
+### Build
+You would need three files for running the program.
+- plugin.jar 
+- application.jar
+- build.json
+
+### Creating plugin.jar
 * Start at the **plugin/** directory. 
 ```
-$ cd plugin/
+~:$ cd plugin
 ```
 * Compile **plugin** necessary files.
 ```
-$ javac -d bin/main --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED src/main/java/edu/handong/csee/se/sugarbag/plugin/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/treescanner/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/annotations/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/utils/*.java
+~/plugin:$ javac -d bin/main --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED src/main/java/edu/handong/csee/se/sugarbag/plugin/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/treescanner/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/annotations/*.java src/main/java/edu/handong/csee/se/sugarbag/plugin/utils/*.java
 ```
 * Create the **jar** file.
     * In the **plugin/bin/main/** directory.
 ```
-$ cd bin/main/
-$ jar -cf plugin.jar edu META-INF
+~/plugin:$ cd bin/main
+~/plugin/bin/main:$ jar -cf plugin.jar edu META-INF
 ```
 
-##### plugin.jar file created
-* Execution of the program
+### Creating application.jar
+* start at the application/ directory
 ```
-$ gradle run
+~:$ cd application
+~/application:$ gradle jar
 ```
+the output jar will be located at <code>~/build/libs</code>
 
+### Writing build.json
+You can write build.json to configure your environment paths.
+- mainClass: your main class to be executed
+- plugin: path to <code>plugin.jar</code> 
+- dependencies: external libraries  
+- classFileDir: <code>.class</code> file output directory
+- dependencyDir: dependency directory for searching the dependencies
+
+## Running
+1. Place <code>application.jar</code> at your root directory.
+2. Place <code>plugin.jar</code> directory where you setted in <code>build.json</code>.
+```
+~workspace:$ java -jar application.jar
+```
 ---
 
 ### Related Projects
