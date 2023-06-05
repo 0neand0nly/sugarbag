@@ -7,7 +7,6 @@
  */
 
 plugins {
-    //id 'java'
     id 'application'
 }
 
@@ -23,6 +22,8 @@ dependencies {
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:31.1-jre'
 
+    implementation 'org.json:json:20220320'
+
     implementation files('lib/edu/handong/csee/se/sugarbag/plugin/plugin.jar')
 }
 
@@ -31,8 +32,17 @@ application {
     mainClassName = 'edu.handong.csee.se.sugarbag.app.SugarBag'
 }
 
+sourceSets.main.resources.srcDirs += [ 'lib/org/json/20220320' ]
+
 run {
     standardInput = System.in
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': application.mainClassName, 
+                   'Class-Path': "lib/org/json/20220320/json-20220320.jar")
+    }
 }
 
 tasks.named('test') {
