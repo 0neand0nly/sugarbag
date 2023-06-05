@@ -10,6 +10,8 @@ plugins {
     id 'application'
 }
 
+
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
@@ -29,7 +31,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = 'edu.handong.csee.se.sugarbag.app.SugarBag'
+    mainClass.set('edu.handong.csee.se.sugarbag.app.SugarBag')
 }
 
 sourceSets.main.resources.srcDirs += [ 'lib/org/json/20220320' ]
@@ -40,10 +42,11 @@ run {
 
 jar {
     manifest {
-        attributes('Main-Class': application.mainClassName, 
-                   'Class-Path': "lib/org/json/20220320/json-20220320.jar")
+        attributes('Main-Class': application.mainClass.get(),
+                'Class-Path': "lib/org/json/20220320/json-20220320.jar")
     }
 }
+
 
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
