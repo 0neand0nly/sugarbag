@@ -30,13 +30,31 @@ Our plug-in can free developers from chores by defining useful annotations like 
 * gradle 8.1.1
 
 #### Build
-* Execute **SugarBag.java** to start building the project.
+##### In case you need the plugin.jar file
+* Start at the **plugin/** directory. 
 ```
-$ cd application/
+$ cd plugin/
+```
+* Compile **plugin** necessary files.
+```
+$ javac -d bin/main --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED /src/main/java/edu/handong/csee/se/sugarbag/plugin/*.java /src/main/java/edu/handong/csee/se/sugarbag/plugin/treescanner/*.java /src/main/java/edu/handong/csee/se/sugarbag/plugin/annotations/*.java /src/main/java/edu/handong/csee/se/sugarbag/plugin/utils/*.java
+```
+* Make the **jar** file.
+    * In the **plugin/bin/main/** directory.
+```
+$ cd bin/main/
+$ jar -cf plugin.jar edu/
+```
+* Include **META-INF** contents.
+    * In the **plugin/bin/main/** directory.
+```
+$ jar uf plugin.jar META-INF/services/com.sun.source.util.Plugin
+```
+##### plugin.jar file created
+* Execution of the program
+```
 $ gradle run
-
 ```
-
 
 ---
 
