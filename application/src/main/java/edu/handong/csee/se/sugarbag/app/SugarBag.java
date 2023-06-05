@@ -19,12 +19,10 @@ public class SugarBag {
 
     /**
      * Initializes the <code>data</code>, <code>view</code>,
-     * and <code>factory</code> of this instance 
-     * with the given plugin path name.
-     * @param pathname the plugin path name
+     * and <code>factory</code> of this instance.
      */
     public SugarBag(String pathname) {
-        data = new PluginData(pathname);
+        data = new PluginData();
         view = new RootView();
         factory = new ActionFactory();
     }
@@ -74,48 +72,55 @@ public class SugarBag {
      */
     public void execute() throws IOException, InterruptedException {
         Process child;
-        InputStream in, err;
-        Set<String> selected = data.getSelected();
-        List<String> compileCommand = new ArrayList<>();
-        List<String> executeCommand = new ArrayList<>();
+        List<String> compileCommand;
+        List<String> executeCommand;
+        Set<String> selected;
 
+        data.configure();
+
+        compileCommand = new ArrayList<>();
+        
         compileCommand.add("javac");
         compileCommand.add("-cp");
-        compileCommand.add("\"" + data.getPluginClasspath() + File.pathSeparator 
+        compileCommand.add("\"" + data.getPluginClasspath() 
+                           + File.pathSeparator 
                            + data.getUserClasspath() + "\"");
-        
+        compileCommand.add("-d");
+        compileCommand.add(data.getClassFileDir());
+
+        selected = data.getSelected();
+
         for (String selection : selected) {
             compileCommand.add("-Xplugin:" + selection);
         }
 
         compileCommand.add(data.getInputJavaFile()); 
     
-        //child = new ProcessBuilder(compileCommand).start();
-
         child = new ProcessBuilder(compileCommand).start();
-        in = child.getInputStream();
-        err = child.getErrorStream();
-
-        while (child.isAlive()) {
-            if (in.available() > 0) {
-                System.out.println(new String(in.readNBytes(in.available())));
-            }
-
-            if (err.available() > 0) {
-                System.out.println(
-                        new String(err.readNBytes(err.available())));
-            }
-        }
         
-        child.waitFor();
+        flushWaitFor(child);
+
+        executeCommand = new ArrayList<>();
+
         executeCommand.add("java");
         executeCommand.add("-cp");
-        executeCommand.add("\"." + File.pathSeparator + data.getUserClasspath() + "\"");
-        executeCommand.add(data.getInputClassFile());
+        executeCommand.add("\"" + data.getClassFileDir() + File.pathSeparator 
+                           + data.getUserClasspath() + "\"");
+        executeCommand.add(data.getMainClass());
 
         child = new ProcessBuilder(executeCommand).start();
-        in = child.getInputStream();
-        err = child.getErrorStream();
+        
+        flushWaitFor(child);
+    }
+
+    /**
+     * Waits the given child process to be terminated with flushing 
+     * the process' <code>stdin</code> and <code>stderr</code>.
+     * @param child the child process
+     */
+    private int flushWaitFor(Process child) throws IOException {
+        InputStream in = child.getInputStream();
+        InputStream err = child.getErrorStream();
 
         while (child.isAlive()) {
             if (in.available() > 0) {
@@ -127,7 +132,10 @@ public class SugarBag {
                         new String(err.readNBytes(err.available())));
             }
         }
+
+        return child.exitValue();
     }
+
 
     /**
      * Shows the current <code>view</code>.
