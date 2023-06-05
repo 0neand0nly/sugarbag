@@ -31,6 +31,7 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
+import edu.handong.csee.se.sugarbag.plugin.annotations.Email;
 import edu.handong.csee.se.sugarbag.plugin.treescanner.ASTModificationScanner;
 
 public class EmailPlugin extends ASTModificationPlugin{

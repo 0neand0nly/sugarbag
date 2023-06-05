@@ -18,6 +18,8 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
+import edu.handong.csee.se.sugarbag.plugin.annotations.InRange;
+
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.AssignmentTree;

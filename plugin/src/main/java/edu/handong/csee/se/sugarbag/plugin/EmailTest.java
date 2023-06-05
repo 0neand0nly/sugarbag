@@ -1,5 +1,7 @@
 package edu.handong.csee.se.sugarbag.plugin;
 
+import edu.handong.csee.se.sugarbag.plugin.annotations.Email;
+
 public class EmailTest {
     public static void main(String[] args) {
         EmailTest test = new EmailTest();

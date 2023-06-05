@@ -1,4 +1,4 @@
-package edu.handong.csee.se.sugarbag.plugin;
+package edu.handong.csee.se.sugarbag.plugin.annotations;
 
 import java.lang.annotation.*;
 

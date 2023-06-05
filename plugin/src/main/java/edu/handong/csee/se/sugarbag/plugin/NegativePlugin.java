@@ -23,6 +23,8 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
 
+import edu.handong.csee.se.sugarbag.plugin.annotations.Negative;
+
 import javax.tools.JavaCompiler;
 import java.util.*;
 import java.util.stream.Collectors;
