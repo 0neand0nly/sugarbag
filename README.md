@@ -32,9 +32,9 @@ Our plug-in can free developers from chores by defining useful annotations like 
 
 ### Build
 You would need three files for running the program.
-- plugin.jar 
-- application.jar
-- build.json
+- <code>plugin.jar</code> 
+- <code>application.jar</code>
+- <code>build.json</code>
 
 ### Creating plugin.jar
 * Start at the **plugin/** directory. 
